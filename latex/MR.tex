@@ -1,0 +1,58 @@
+En esta sección se detalla los componentes del modelo relacional creado a partir del modelo entidad relación fue detallado
+anteriormente.\\
+\\
+\textbf{Pais}(\uline{IdPais}, Nombre)\\
+PK = \{IdPais\}\\
+CK = \{IdPais\}\\
+\\
+\textbf{Maestro}(\uline{NroDePlacaDeInstructor}, Nombre, Apellido, Graduación, \dashuline{IdPais})\\
+CK = \{NroDePlacaDeInstructor\}\\
+PK = \{NroDePlacaDeInstructor\}\\
+FK = \{IdPais\}\\
+\\
+\textbf{Escuela}(\uline{ID_Escuela}, Nombre, \dashuline{IdPais})\\
+CK = \{ID_Escuela\}\\
+PK = \{ID_Escuela\}\\
+FK = \{IdPais\}\\
+\\
+\textbf{Alumno}(\uline{DNI}, Nombre, Apellido, FechaDeNacimiento, Sexo, Peso, NúmeroCertificadoGraduación, Graduación,
+Foto, \dashuline{ID_Escuela}, \dashuline{ID_Equipo}, Supervisa)\\
+CK = \{DNI\}\\
+PK = \{DNI\}\\
+FK = \{ID_Escuela, ID_Equipo\}\\
+\\
+\textbf{Coach}(\uline{DNI})\\
+PK = \{DNI\}\\
+CK = \{DNI\}\\
+\\
+\textbf{Equipo}(\uline{ID_Equipo}, Nombre)\\
+PK = \{ID_Equipo\}\\
+CK = \{ID_Equipo\}\\
+\\
+\textbf{Árbitro}(\uline{nroDePlacaDeÁrbitro}, Nombre, Apellido, Graduación, Tipo, \dashuline{IdPais})\\
+CK = \{nroDePlacaDeÁrbitro\}\\
+PK = \{nroDePlacaDeÁrbitro\}\\
+\\
+\textbf{PresidenteDeMesa}(\uline{nroDePlacaDeÁrbitro}, \dashuline{IdRing})\\
+PK = \{nroDePlacaDeÁrbitro\}\\
+CK = \{nroDePlacaDeÁrbitro\}\\
+FK = \{IdRing\}\\
+\\
+\textbf{Juez}(\uline{nroDePlacaDeÁrbitro}, \dashuline{IdRing})\\
+PK = \{nroDePlacaDeÁrbitro\}\\
+CK = \{nroDePlacaDeÁrbitro\}\\
+FK = \{IdRing\}\\
+\\
+\textbf{ÁrbitroCentral}(\uline{nroDePlacaDeÁrbitro}, \dashuline{IdRing})\\
+PK = \{nroDePlacaDeÁrbitro\}\\
+CK = \{nroDePlacaDeÁrbitro\}\\
+FK = \{IdRing\}\\
+\\
+\textbf{ÁrbitroDeRecambio}(\uline{nroDePlacaDeÁrbitro}, \dashuline{IdRing})\\
+PK = \{nroDePlacaDeÁrbitro\}\\
+CK = \{nroDePlacaDeÁrbitro\}\\
+FK = \{IdRing\}\\
+\\
+\textbf{Ring}(\uline{IdRing})\\
+PK = \{IdRing\}\\
+CK = \{IdRing\}\\
