@@ -1,0 +1,78 @@
+En esta sección están especificadas todas las restricciones adicionales del MER y MR introducidos en las secciones anteriores.
+
+\subsection{Restricciónes provenientes del MER:}
+\begin{itemize}
+\item Toda escuela envia un coach por cada cinco competidores inscripctos.
+\item Todos los competidores que pertenecen a un mismo equipo son inscriptos por la misma escuela.
+\item Todo equipo está formado por cinco competidores con el atributo ``Titular'' en true que pertenecen al equipo.
+\item Todo equipo esta formado por al menos tres competidores con el atributo ``Titular'' en false que pertenecen al equipo.
+\item Todo competidor que no pertenece a un equipo, tiene el atributo ``Titular'' en NULL.
+\item Todo competidor inscripto en una competencia es acompañado por un coach enviado por la misma escuela que lo inscribió.
+\item Todo equipo inscripto en una competencia es acompañado por un coach enviado por la misma escuela que inscribió a los competidores del equipo.
+\item Ningún competidor puede ser acompañado en una competencia por un coach que tenga el mismo ``ID_Alumno''.
+\item Ningún equipo puede ser acompañado en una competencia por un coach que tenga el mismo ``ID_Alumno'' que alguno de sus integrantes.
+\item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde el juez de mesa sea un árbitro con graduación mayor a la de la competencia.
+\item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde todos los jueces sean árbitros con graduación mayor a la de la competencia.
+\item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde el árbitro central sea un árbitro con graduación mayor a la de la competencia.
+\item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde todos los árbitros de recambio sean árbitros con graduación mayor a la de la competencia.
+\item Ningún competidor puede estar en más de una de las siguientes relaciones: ``Primer lugar en'', ``Segundo lugar en'', ``Tercer lugar en''.
+\item Todo competidor que está en alguna de las relaciones ``Primer lugar en'', ``Segundo lugar en'' o ``Tercer lugar en'' debe estar inscripto a dicha competencia a la cual pertenece la relación.
+\item Ningún equipo puede estar en más de una de las siguientes relaciones: ``Primer lugar en'', ``Segundo lugar en'', ``Tercer lugar en''.
+\item Todo Equipo que está en alguna de las relaciones ``Primer lugar en'', ``Segundo lugar en'' o ``Tercer lugar en'' debe estar inscripto y habilitado en dicha competencia a la cual pertenece la relación.
+\end{itemize}
+
+\subsection{Restricciones provenientes del MR:}
+\begin{itemize}
+\item \textbf{Herencias de Alumno:}
+\begin{itemize}
+\item Competidor.ID\_Alumno debe estar en Alumno.ID\_Alumno.
+\item Coach.ID\_Alumno debe estar en Alumno.ID\_Alumno.
+\item Alumno.ID\_Alumno debe estar en Competidor.ID\_Alumno o (no excluyente) Coach.ID\_Alumno.
+\end{itemize}
+\item \textbf{Herencias de Competencia:}
+\begin{itemize}
+\item CompetenciaCombateEquipo.ID\_Competencia debe estar en Competencia.ID\_Competencia
+\item CompetenciaIndividual.ID\_Competencia debe estar en Competencia.ID\_Competencia
+\item Competencia.ID\_Competencia debe estar en CompetenciaCombateEquipo.ID\_Competencia o (excluyente) en CompetenciaIndividual.ID\_Competencia.
+\end{itemize}
+\item \textbf{Herencias de CompetenciaIndividual:}
+\begin{itemize}
+\item CompetenciaSalto.ID\_Competencia debe estar en CompetenciaIndividual.ID\_Competencia
+\item CompetenciaFormas.ID\_Competencia debe estar en CompetenciaIndividual.ID\_Competencia
+\item CompetenciaRotura.ID\_Competencia debe estar en CompetenciaIndividual.ID\_Competencia
+\item CompetenciaCombateIndividual.ID\_Competencia debe estar en CompetenciaIndividual.ID\_Competencia
+\item CompetenciaIndividual.ID\_Competencia debe estar en CompetenciaSalto.ID\_Competencia o (excluyente) en CompetenciaFormas.ID\_Competencia o (excluyente) en CompetenciaRotura.ID\_Competencia o (excluyente) en CompetenciaCombateIndividual.ID\_Competencia.
+\end{itemize}
+\item \textbf{Herencias de Árbitro:}
+\begin{itemize}
+\item PresidenteDeMesa.nroDePlacaDeÁrbitro debe estar en Árbitro.nroDePlacaDeÁrbitro
+\item Juez.nroDePlacaDeÁrbitro debe estar en Árbitro.nroDePlacaDeÁrbitro
+\item ÁrbitroCentral.nroDePlacaDeÁrbitro debe estar en Árbitro.nroDePlacaDeÁrbitro
+\item ÁrbitroDeRecambio.nroDePlacaDeÁrbitro debe estar en Árbitro.nroDePlacaDeÁrbitro
+\item Arbitro.nroDePlacaDeÁrbitro debe estar en PresidenteDeMesa.nroDePlacaDeÁrbitro o (excluyente) en Juez.nroDePlacaDeÁrbitro o (excluyente) ÁrbitroCentral.nroDePlacaDeÁrbitro o (excluyente) en ÁrbitroDeRecambio.nroDePlacaDeÁrbitro.
+\end{itemize}
+\item \textbf{Claves foráneas:}
+\begin{itemize}
+\item Maestro.ID\_Pais debe estar en Pais.ID\_Pais.
+\item Escuela.ID\_Pais debe estar en Pais.ID\_Pais.
+\item Escuela.NroDePlacaDeInstructor debe estar en Maestro.NroDePlacaDeInstructor.
+\item Competidor.ID\_Escuela debe estar en Escuela.ID\_Escuela.
+\item Escuela.ID\_Equipo debe estar en Equipo.ID\_Equipo o ser NULL.
+\item Coach.ID\_Escuela debe estar en Coach.ID\_Escuela.
+\item Árbitro.ID\_pais debe estar en Pais.ID\_Pais.
+\item CompetenciaIndividual.PrimerLugar debe estar en Competidor.ID\_Alumno.
+\item CompetenciaIndividual.SegundoLugar debe estar en Competidor.ID\_Alumno.
+\item CompetenciaIndividual.TercerLugar debe estar en Competidor.ID\_Alumno.
+\item CompetenciaCombateEquipo.PrimerLugar debe estar en Competidor.ID\_Alumno.
+\item CompetenciaCombateEquipo.SegundoLugar debe estar en Competidor.ID\_Alumno.
+\item CompetenciaCombateEquipo.TercerLugar debe estar en Competidor.ID\_Alumno.
+\item SeRealizaEn.ID\_Competencia debe estar en Competencia.ID\_Competencia.
+\item SeRealizaEn.ID\_Ring debe estar en Ring.ID\_Ring.
+\item InscriptoEn.ID\_Competencia debe estar en Competencia.ID\_Competencia.
+\item InscriptoEn.ID\_Competidor debe estar en Competidor.ID\_Alumno.
+\item InscriptoEn.ID\_Coach debe estar en Coach.ID\_Alumno.
+\item InscriptoEn.ID\_Competencia debe estar en Competencia.ID\_Competencia.
+\item InscriptoEn.ID\_Equipo debe estar en Equipo.ID\_Equipo.
+\item InscriptoEn.ID\_Coach debe estar en Coach.ID\_Alumno.
+\end{itemize}
+\end{itemize}

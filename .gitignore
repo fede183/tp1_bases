@@ -1,0 +1,8 @@
+latex/*.aux
+latex/*.bbl
+latex/*.blg
+latex/*.log
+latex/*.out
+latex/*.pdf
+latex/*.toc
+latex/*.synctex.gz

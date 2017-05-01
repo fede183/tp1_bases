@@ -1,8 +1,0 @@
-\select@language {spanish}
-\contentsline {section}{\numberline {1}Introducci\IeC {\'o}n}{3}{section.1}
-\contentsline {section}{\numberline {2}Modelo entidad relaci\IeC {\'o}n}{4}{section.2}
-\contentsline {section}{\numberline {3}Modelo relacional}{5}{section.3}
-\contentsline {section}{\numberline {4}Restricciones}{7}{section.4}
-\contentsline {section}{\numberline {5}Dise\IeC {\~n}o de Base de datos}{8}{section.5}
-\contentsline {section}{\numberline {6}C\IeC {\'o}digo de Base de datos}{9}{section.6}
-\contentsline {section}{\numberline {7}Conclusiones}{10}{section.7}
