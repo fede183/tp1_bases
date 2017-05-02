@@ -14,19 +14,20 @@ CK = \{ID\_Escuela\}\\
 PK = \{ID\_Escuela\}\\
 FK = \{ID\_Pais, NroDePlacaDeInstructor\}\\
 \\
-\textbf{Alumno}(\uline{ID\_Alumno}, Nombre, Apellido, NúmeroCertificadoGraduación, Graduación, Foto)\\
+\textbf{Alumno}(\uline{ID\_Alumno}, Nombre, Apellido, NúmeroCertificadoGraduación, Graduación, Foto, \dashuline{ID\_Escuela})\\
 CK = \{ID\_Alumno\}\\
 PK = \{ID\_Alumno\}\\
+FK = \{ID\_Escuela\}\\
 \\
-\textbf{Competidor}(\uline{\dashuline{ID\_Alumno}},DNI, FechaDeNacimiento, Sexo, Peso, Titular, \dashuline{ID\_Escuela}, \dashuline{ID\_Equipo})\\
+\textbf{Competidor}(\uline{\dashuline{ID\_Alumno}},DNI, FechaDeNacimiento, Sexo, Peso, Titular, \dashuline{ID\_Equipo})\\
 CK = \{ID\_Alumno\}\\
 PK = \{ID\_Alumno\}\\
-FK = \{ID\_Alumno, ID\_Equipo, ID\_Escuela\}\\
+FK = \{ID\_Alumno, ID\_Equipo\}\\
 \\
-\textbf{Coach}(\uline{\dashuline{ID\_Alumno}, \dashuline{ID\_Escuela}})\\
+\textbf{Coach}(\uline{\dashuline{ID\_Alumno}})\\
 PK = \{ID\_Alumno\}\\
 CK = \{ID\_Alumno\}\\
-FK = \{ID\_Alumno, ID\_Escuela\}\\
+FK = \{ID\_Alumno\}\\
 \\
 \textbf{Equipo}(\uline{ID\_Equipo}, NombreDeFantasia)\\
 PK = \{ID\_Equipo\}\\
