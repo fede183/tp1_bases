@@ -1,43 +1,52 @@
 BEGIN TRANSACTION;
+CREATE TABLE "SeRealizaEn" (
+	`IdCompetencia`	INTEGER NOT NULL,
+	`IdRing`	INTEGER NOT NULL,
+	PRIMARY KEY(`IdCompetencia`,`IdRing`),
+	FOREIGN KEY(`IdCompetencia`) REFERENCES `Competencia`(`IdCompetencia`),
+	FOREIGN KEY(`IdRing`) REFERENCES `Ring`(`IdRing`)
+);
 CREATE TABLE `Ring` (
 	`IdRing`	INTEGER NOT NULL,
 	PRIMARY KEY(`IdRing`)
 );
 CREATE TABLE "PresidenteDeMesa" (
-	`IdArbitro`	INTEGER,
+	`NroPlacaArbitro`	INTEGER,
 	`IdRing`	INTEGER UNIQUE,
-	PRIMARY KEY(`IdArbitro`),
-	FOREIGN KEY(`IdArbitro`) REFERENCES `Arbitro`(`IdArbitro`),
+	PRIMARY KEY(`NroPlacaArbitro`),
+	FOREIGN KEY(`NroPlacaArbitro`) REFERENCES `Arbitro`(`NroPlacaArbitro`),
 	FOREIGN KEY(`IdRing`) REFERENCES `Ring`(`IdRing`)
 );
-CREATE TABLE `Pais` (
-	`IdPais`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-	`Nombre`	TEXT NOT NULL UNIQUE
+CREATE TABLE "Pais" (
+	`IdPais`	INTEGER NOT NULL,
+	`Nombre`	TEXT NOT NULL UNIQUE,
+	PRIMARY KEY(`IdPais`)
 );
 CREATE TABLE "Maestro" (
-	`NroPlacaInstructor`	INTEGER NOT NULL,
+	`NroDePlacaDeInstructor`	INTEGER NOT NULL,
 	`Nombre`	TEXT NOT NULL,
 	`Apellido`	TEXT NOT NULL,
 	`Graduacion`	INTEGER,
 	`IdPais`	INTEGER,
 	`IdEscuela`	INTEGER,
-	PRIMARY KEY(`NroPlacaInstructor`),
+	PRIMARY KEY(`NroDePlacaDeInstructor`),
 	FOREIGN KEY(`IdPais`) REFERENCES `Pais`(`IdPais`),
 	FOREIGN KEY(`IdEscuela`) REFERENCES `Escuela`(`IdEscuela`)
 );
 CREATE TABLE "Juez" (
-	`IdArbitro`	INTEGER,
+	`NroPlacaArbitro`	INTEGER,
 	`IdRing`	INTEGER,
-	PRIMARY KEY(`IdArbitro`,`IdRing`),
-	FOREIGN KEY(`IdArbitro`) REFERENCES `Arbitro`(`IdArbitro`),
+	PRIMARY KEY(`NroPlacaArbitro`,`IdRing`),
+	FOREIGN KEY(`NroPlacaArbitro`) REFERENCES `Arbitro`(`NroPlacaArbitro`),
 	FOREIGN KEY(`IdRing`) REFERENCES `Ring`(`IdRing`)
 );
-CREATE TABLE `Inscripcion` (
+CREATE TABLE "InscriptoEn" (
 	`DNIAlumno`	INTEGER NOT NULL,
 	`DNICoach`	INTEGER,
 	`IdCompetencia`	INTEGER NOT NULL,
 	PRIMARY KEY(`DNIAlumno`,`IdCompetencia`),
 	FOREIGN KEY(`DNIAlumno`) REFERENCES `Alumno`(`DNI`),
+	FOREIGN KEY(`DNICoach`) REFERENCES `Alumno`(`DNI`),
 	FOREIGN KEY(`IdCompetencia`) REFERENCES `Competencia`(`IdCompetencia`)
 );
 CREATE TABLE "Escuela" (
@@ -47,10 +56,30 @@ CREATE TABLE "Escuela" (
 	PRIMARY KEY(`IdEscuela`),
 	FOREIGN KEY(`IdPais`) REFERENCES `Pais`(`IdPais`)
 );
-CREATE TABLE `Equipo` (
+CREATE TABLE `EquipoInscriptoEn` (
 	`IdEquipo`	INTEGER NOT NULL,
-	`Nombre`	TEXT NOT NULL,
+	`IdCompetencia`	INTEGER NOT NULL,
+	`DNICoach`	INTEGER,
+	PRIMARY KEY(`IdEquipo`,`IdCompetencia`),
+	FOREIGN KEY(`IdEquipo`) REFERENCES `Equipo`(`IdEquipo`),
+	FOREIGN KEY(`IdCompetencia`) REFERENCES `Competencia`(`IdCompetencia`),
+	FOREIGN KEY(`DNICoach`) REFERENCES `Alumno`(`DNI`)
+);
+CREATE TABLE "Equipo" (
+	`IdEquipo`	INTEGER NOT NULL,
+	`NombreDeFantasia`	TEXT NOT NULL,
 	PRIMARY KEY(`IdEquipo`)
+);
+CREATE TABLE "Competidor" (
+	`DNI`	INTEGER NOT NULL,
+	`FechaDeNacimiento`	TEXT NOT NULL,
+	`Sexo`	TEXT NOT NULL,
+	`Edad`	INTEGER NOT NULL,
+	`Titular`	INTEGER,
+	`IdEquipo`	INTEGER,
+	PRIMARY KEY(`DNI`),
+	FOREIGN KEY(`DNI`) REFERENCES `Alumno`(`DNI`),
+	FOREIGN KEY(`IdEquipo`) REFERENCES `Equipo`(`IdEquipo`)
 );
 CREATE TABLE `CompetenciaSalto` (
 	`IdCompetencia`	INTEGER NOT NULL,
@@ -60,25 +89,19 @@ CREATE TABLE `CompetenciaSalto` (
 	PRIMARY KEY(`IdCompetencia`),
 	FOREIGN KEY(`IdCompetencia`) REFERENCES `Competencia`(`IdCompetencia`)
 );
-CREATE TABLE `CompetenciaRotura` (
-	`Field1`	INTEGER NOT NULL,
+CREATE TABLE "CompetenciaRotura" (
+	`IdCompetencia`	INTEGER NOT NULL,
 	`Sexo`	TEXT NOT NULL,
 	`Graduacion`	INTEGER NOT NULL,
-	PRIMARY KEY(`Field1`),
-	FOREIGN KEY(`Field1`) REFERENCES `Competencia`(`IdCompetencia`)
+	PRIMARY KEY(`IdCompetencia`),
+	FOREIGN KEY(`IdCompetencia`) REFERENCES `Competencia`(`IdCompetencia`)
 );
-CREATE TABLE `CompetenciaRing` (
-	`IdCompetencia`	INTEGER NOT NULL,
-	`IdRing`	INTEGER NOT NULL,
-	PRIMARY KEY(`IdCompetencia`,`IdRing`),
-	FOREIGN KEY(`IdCompetencia`) REFERENCES `Competencia`(`IdCompetencia`),
-	FOREIGN KEY(`IdRing`) REFERENCES `Ring`(`IdRing`)
-);
-CREATE TABLE `CompetenciaIndividual` (
+CREATE TABLE "CompetenciaIndividual" (
 	`IdCompetencia`	INTEGER NOT NULL,
 	`PrimerLugar`	INTEGER,
 	`SegundoLugar`	INTEGER,
 	`TercerLugar`	INTEGER,
+	`Modalidad`	INTEGER NOT NULL,
 	PRIMARY KEY(`IdCompetencia`),
 	FOREIGN KEY(`IdCompetencia`) REFERENCES `Competencia`(`IdCompetencia`),
 	FOREIGN KEY(`PrimerLugar`) REFERENCES `Alumno`(`DNI`),
@@ -122,23 +145,21 @@ CREATE TABLE `Competencia` (
 );
 CREATE TABLE "Coach" (
 	`DNI`	INTEGER,
-	`IdEscuela`	INTEGER,
 	PRIMARY KEY(`DNI`),
-	FOREIGN KEY(`DNI`) REFERENCES `Alumno`(`DNI`),
-	FOREIGN KEY(`IdEscuela`) REFERENCES `Escuela`(`IdEscuela`)
+	FOREIGN KEY(`DNI`) REFERENCES `Alumno`(`DNI`)
 );
 CREATE TABLE "ArbitroDeRecambio" (
-	`IdArbitro`	INTEGER,
+	`NroPlacaArbitro`	INTEGER,
 	`IdRing`	INTEGER,
-	PRIMARY KEY(`IdArbitro`,`IdRing`),
-	FOREIGN KEY(`IdArbitro`) REFERENCES `Arbitro`(`IdArbitro`),
+	PRIMARY KEY(`NroPlacaArbitro`,`IdRing`),
+	FOREIGN KEY(`NroPlacaArbitro`) REFERENCES `Arbitro`(`NroPlacaArbitro`),
 	FOREIGN KEY(`IdRing`) REFERENCES `Ring`(`IdRing`)
 );
 CREATE TABLE "ArbitroCentral" (
-	`IdArbitro`	INTEGER,
+	`NroPlacaArbitro`	INTEGER,
 	`IdRing`	INTEGER UNIQUE,
-	PRIMARY KEY(`IdArbitro`),
-	FOREIGN KEY(`IdArbitro`) REFERENCES `Arbitro`(`IdArbitro`),
+	PRIMARY KEY(`NroPlacaArbitro`),
+	FOREIGN KEY(`NroPlacaArbitro`) REFERENCES `Arbitro`(`NroPlacaArbitro`),
 	FOREIGN KEY(`IdRing`) REFERENCES `Ring`(`IdRing`)
 );
 CREATE TABLE "Arbitro" (
@@ -153,18 +174,13 @@ CREATE TABLE "Arbitro" (
 );
 CREATE TABLE "Alumno" (
 	`DNI`	INTEGER NOT NULL,
-	`Peso`	INTEGER NOT NULL,
-	`Edad`	INTEGER NOT NULL,
 	`IdEscuela`	INTEGER NOT NULL,
-	`IdEquipo`	INTEGER,
-	`FechaNacimiento`	INTEGER NOT NULL,
-	`Nombre`	TEXT NOT NULL,
+	`Nombre`	INTEGER NOT NULL,
 	`Apellido`	INTEGER NOT NULL,
 	`Graduacion`	INTEGER NOT NULL,
-	`NumeroCertificadoGraduacionITF`	INTEGER NOT NULL,
+	`NroCertificadoGraduacionITF`	INTEGER NOT NULL,
 	`Foto`	BLOB NOT NULL,
 	PRIMARY KEY(`DNI`),
-	FOREIGN KEY(`IdEscuela`) REFERENCES `Escuela`(`IdEscuela`),
-	FOREIGN KEY(`IdEquipo`) REFERENCES `Equipo`(`IdEquipo`)
+	FOREIGN KEY(`IdEscuela`) REFERENCES `Escuela`(`IdEscuela`)
 );
 COMMIT;

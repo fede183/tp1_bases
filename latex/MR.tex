@@ -101,10 +101,10 @@ PK = \{(IdCompetencia, IdRing)\}\\
 CK = \{(IdCompetencia, IdRing)\}\\
 FK = \{IdCompetencia, IdRing\}\\
 \\
-\textbf{InscriptoEn}(\dashuline{\uline{IdCompetencia}}, \dashuline{\uline{IdCompetidor}}, \dashuline{IdCoach})\\
-PK = \{(IdCompetencia, IdCompetidor)\}\\
-CK = \{(IdCompetencia, IdCompetidor)\}\\
-FK = \{IdCompetencia, IdCompetidor, IdCoach\}\\
+\textbf{InscriptoEn}(\dashuline{\uline{IdCompetencia}}, \dashuline{\uline{DNIAlumno}}, \dashuline{DNICoach})\\
+PK = \{(IdCompetencia, DNIAlumno)\}\\
+CK = \{(IdCompetencia, DNIAlumno)\}\\
+FK = \{IdCompetencia, DNIAlumno, DNICoach\}\\
 \\
 \textbf{EquipoInscriptoEn}(\dashuline{\uline{IdCompetencia}}, \dashuline{\uline{IdEquipo}}, \dashuline{IdCoach})\\
 PK = \{(IdCompetencia, IdEquipo)\}\\
