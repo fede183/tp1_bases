@@ -1,113 +1,113 @@
 En esta sección se detalla los componentes del modelo relacional creado a partir del modelo entidad relación introducido anteriormente.\\
 \\
-\textbf{Pais}(\uline{ID\_Pais}, Nombre)\\
-PK = \{ID\_Pais\}\\
-CK = \{ID\_Pais\}\\
+\textbf{Pais}(\uline{IdPais}, Nombre)\\
+PK = \{IdPais\}\\
+CK = \{IdPais\}\\
 \\
-\textbf{Escuela}(\uline{ID\_Escuela}, Nombre, \dashuline{ID\_Pais})\\
-CK = \{ID\_Escuela\}\\
-PK = \{ID\_Escuela\}\\
-FK = \{ID\_Pais\}\\
+\textbf{Escuela}(\uline{IdEscuela}, Nombre, \dashuline{IdPais})\\
+CK = \{IdEscuela\}\\
+PK = \{IdEscuela\}\\
+FK = \{IdPais\}\\
 \\
-\textbf{Maestro}(\uline{NroDePlacaDeInstructor}, Nombre, Apellido, Graduación, \dashuline{ID\_Pais}, \dashuline{ID\_Escuela})\\
+\textbf{Maestro}(\uline{NroDePlacaDeInstructor}, Nombre, Apellido, Graduación, \dashuline{IdPais}, \dashuline{IdEscuela})\\
 CK = \{NroDePlacaDeInstructor\}\\
 PK = \{NroDePlacaDeInstructor\}\\
-FK = \{ID\_Pais, ID\_Escuela\}\\
+FK = \{IdPais, IdEscuela\}\\
 \\
-\textbf{Alumno}(\uline{DNI}, Nombre, Apellido, NroCertificadoGraduaciónITF, Graduación, Foto, \dashuline{ID\_Escuela})\\
+\textbf{Alumno}(\uline{DNI}, Nombre, Apellido, NroCertificadoGraduaciónITF, Graduación, Foto, \dashuline{IdEscuela})\\
 CK = \{DNI\}\\
 PK = \{DNI\}\\
-FK = \{ID\_Escuela\}\\
+FK = \{IdEscuela\}\\
 \\
-\textbf{Equipo}(\uline{ID\_Equipo}, NombreDeFantasia)\\
-PK = \{ID\_Equipo\}\\
-CK = \{ID\_Equipo\}\\
+\textbf{Equipo}(\uline{IdEquipo}, NombreDeFantasia)\\
+PK = \{IdEquipo\}\\
+CK = \{IdEquipo\}\\
 \\
-\textbf{Competidor}(\uline{\dashuline{DNI}}, FechaDeNacimiento, Sexo, Peso, Titular, \dashuline{ID\_Equipo})\\
+\textbf{Competidor}(\uline{\dashuline{DNI}}, FechaDeNacimiento, Sexo, Peso, Titular, \dashuline{IdEquipo})\\
 CK = \{DNI\}\\
 PK = \{DNI\}\\
-FK = \{DNI, ID\_Equipo\}\\
+FK = \{DNI, IdEquipo\}\\
 \\
 \textbf{Coach}(\uline{\dashuline{DNI}})\\
 PK = \{DNI\}\\
 CK = \{DNI\}\\
 FK = \{DNI\}\\
 \\
-\textbf{Árbitro}(\uline{NroDePlacaDeÁrbitro}, Nombre, Apellido, Graduación, Tipo, \dashuline{ID\_Pais})\\
+\textbf{Árbitro}(\uline{NroDePlacaDeÁrbitro}, Nombre, Apellido, Graduación, Tipo, \dashuline{IdPais})\\
 CK = \{NroDePlacaDeÁrbitro\}\\
 PK = \{NroDePlacaDeÁrbitro\}\\
-FK = \{ID\_Pais\}\\
+FK = \{IdPais\}\\
 \\
-\textbf{Ring}(\uline{ID\_Ring})\\
-PK = \{ID\_Ring\}\\
-CK = \{ID\_Ring\}\\
+\textbf{Ring}(\uline{IdRing})\\
+PK = \{IdRing\}\\
+CK = \{IdRing\}\\
 \\
-\textbf{PresidenteDeMesa}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
+\textbf{PresidenteDeMesa}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{IdRing})\\
 PK = \{NroDePlacaDeÁrbitro\}\\
 CK = \{NroDePlacaDeÁrbitro\}\\
-FK = \{NroDePlacaDeÁrbitro, ID\_Ring\}\\
+FK = \{NroDePlacaDeÁrbitro, IdRing\}\\
 \\
-\textbf{Juez}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
+\textbf{Juez}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{IdRing})\\
 PK = \{NroDePlacaDeÁrbitro\}\\
 CK = \{NroDePlacaDeÁrbitro\}\\
-FK = \{NroDePlacaDeÁrbitro, ID\_Ring\}\\
+FK = \{NroDePlacaDeÁrbitro, IdRing\}\\
 \\
-\textbf{ÁrbitroCentral}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
+\textbf{ÁrbitroCentral}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{IdRing})\\
 PK = \{NroDePlacaDeÁrbitro\}\\
 CK = \{NroDePlacaDeÁrbitro\}\\
-FK = \{NroDePlacaDeÁrbitro, ID\_Ring\}\\
+FK = \{NroDePlacaDeÁrbitro, IdRing\}\\
 \\
-\textbf{ÁrbitroDeRecambio}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
+\textbf{ÁrbitroDeRecambio}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{IdRing})\\
 PK = \{NroDePlacaDeÁrbitro\}\\
 CK = \{NroDePlacaDeÁrbitro\}\\
-FK = \{NroDePlacaDeÁrbitro, ID\_Ring\}\\
+FK = \{NroDePlacaDeÁrbitro, IdRing\}\\
 \\
-\textbf{Competencia}(\uline{ID\_Competencia}, Tipo)\\
-PK = \{ID\_Competencia\}\\
-CK = \{ID\_Competencia\}\\
+\textbf{Competencia}(\uline{IdCompetencia}, Tipo)\\
+PK = \{IdCompetencia\}\\
+CK = \{IdCompetencia\}\\
 \\
-\textbf{CompetenciaCombateEquipo}(\dashuline{\uline{ID\_Competencia}}, Edad, Sexo, \dashuline{PrimerLugar}, \dashuline{SegundoLugar}, \dashuline{TercerLugar})\\
-PK = \{ID\_Competencia\}\\
-CK = \{ID\_Competencia\}\\
-FK = \{ID\_Competencia, PrimerLugar, SegundoLugar, TercerLugar\}\\
+\textbf{CompetenciaCombateEquipo}(\dashuline{\uline{IdCompetencia}}, Edad, Sexo, \dashuline{PrimerLugar}, \dashuline{SegundoLugar}, \dashuline{TercerLugar})\\
+PK = \{IdCompetencia\}\\
+CK = \{IdCompetencia\}\\
+FK = \{IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar\}\\
 \\
-\textbf{CompetenciaIndividual}(\dashuline{\uline{ID\_Competencia}}, Modalidad, \dashuline{PrimerLugar}, \dashuline{SegundoLugar}, \dashuline{TercerLugar})\\
-PK = \{ID\_Competencia\}\\
-CK = \{ID\_Competencia\}\\
-FK = \{ID\_Competencia, PrimerLugar, SegundoLugar, TercerLugar\}\\
+\textbf{CompetenciaIndividual}(\dashuline{\uline{IdCompetencia}}, Modalidad, \dashuline{PrimerLugar}, \dashuline{SegundoLugar}, \dashuline{TercerLugar})\\
+PK = \{IdCompetencia\}\\
+CK = \{IdCompetencia\}\\
+FK = \{IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar\}\\
 \\
-\textbf{CompetenciaSalto}(\dashuline{\uline{ID\_Competencia}}, Sexo, Edad, Graduacion)\\
-PK = \{ID\_Competencia\}\\
-CK = \{ID\_Competencia\}\\
-FK = \{ID\_Competencia\}\\
+\textbf{CompetenciaSalto}(\dashuline{\uline{IdCompetencia}}, Sexo, Edad, Graduacion)\\
+PK = \{IdCompetencia\}\\
+CK = \{IdCompetencia\}\\
+FK = \{IdCompetencia\}\\
 \\
-\textbf{CompetenciaFormas}(\dashuline{\uline{ID\_Competencia}}, Sexo, Edad, Graduacion)\\
-PK = \{ID\_Competencia\}\\
-CK = \{ID\_Competencia\}\\
-FK = \{ID\_Competencia\}\\
+\textbf{CompetenciaFormas}(\dashuline{\uline{IdCompetencia}}, Sexo, Edad, Graduacion)\\
+PK = \{IdCompetencia\}\\
+CK = \{IdCompetencia\}\\
+FK = \{IdCompetencia\}\\
 \\
-\textbf{CompetenciaCombateIndividual}(\dashuline{\uline{ID\_Competencia}}, Sexo, Edad, Graduacion, Peso)\\
-PK = \{ID\_Competencia\}\\
-CK = \{ID\_Competencia\}\\
-FK = \{ID\_Competencia\}\\
+\textbf{CompetenciaCombateIndividual}(\dashuline{\uline{IdCompetencia}}, Sexo, Edad, Graduacion, Peso)\\
+PK = \{IdCompetencia\}\\
+CK = \{IdCompetencia\}\\
+FK = \{IdCompetencia\}\\
 \\
-\textbf{CompetenciaRotura}(\dashuline{\uline{ID\_Competencia}}, Sexo, Graduacion)\\
-PK = \{ID\_Competencia\}\\
-CK = \{ID\_Competencia\}\\
-FK = \{ID\_Competencia\}\\
+\textbf{CompetenciaRotura}(\dashuline{\uline{IdCompetencia}}, Sexo, Graduacion)\\
+PK = \{IdCompetencia\}\\
+CK = \{IdCompetencia\}\\
+FK = \{IdCompetencia\}\\
 \\
-\textbf{SeRealizaEn}(\dashuline{\uline{ID\_Competencia}}, \dashuline{\uline{ID\_Ring}})\\
-PK = \{(ID\_Competencia, ID\_Ring)\}\\
-CK = \{(ID\_Competencia, ID\_Ring)\}\\
-FK = \{ID\_Competencia, ID\_Ring\}\\
+\textbf{SeRealizaEn}(\dashuline{\uline{IdCompetencia}}, \dashuline{\uline{IdRing}})\\
+PK = \{(IdCompetencia, IdRing)\}\\
+CK = \{(IdCompetencia, IdRing)\}\\
+FK = \{IdCompetencia, IdRing\}\\
 \\
-\textbf{InscriptoEn}(\dashuline{\uline{ID\_Competencia}}, \dashuline{\uline{ID\_Competidor}}, \dashuline{ID\_Coach})\\
-PK = \{(ID\_Competencia, ID\_Competidor)\}\\
-CK = \{(ID\_Competencia, ID\_Competidor)\}\\
-FK = \{ID\_Competencia, ID\_Competidor, ID\_Coach\}\\
+\textbf{InscriptoEn}(\dashuline{\uline{IdCompetencia}}, \dashuline{\uline{IdCompetidor}}, \dashuline{IdCoach})\\
+PK = \{(IdCompetencia, IdCompetidor)\}\\
+CK = \{(IdCompetencia, IdCompetidor)\}\\
+FK = \{IdCompetencia, IdCompetidor, IdCoach\}\\
 \\
-\textbf{EquipoInscriptoEn}(\dashuline{\uline{ID\_Competencia}}, \dashuline{\uline{ID\_Equipo}}, \dashuline{ID\_Coach})\\
-PK = \{(ID\_Competencia, ID\_Equipo)\}\\
-CK = \{(ID\_Competencia, ID\_Equipo)\}\\
-FK = \{ID\_Competencia, ID\_Equipo, ID\_Coach\}\\
+\textbf{EquipoInscriptoEn}(\dashuline{\uline{IdCompetencia}}, \dashuline{\uline{IdEquipo}}, \dashuline{IdCoach})\\
+PK = \{(IdCompetencia, IdEquipo)\}\\
+CK = \{(IdCompetencia, IdEquipo)\}\\
+FK = \{IdCompetencia, IdEquipo, IdCoach\}\\
 \\
