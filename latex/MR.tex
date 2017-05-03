@@ -4,63 +4,63 @@ En esta sección se detalla los componentes del modelo relacional creado a parti
 PK = \{ID\_Pais\}\\
 CK = \{ID\_Pais\}\\
 \\
-\textbf{Maestro}(\uline{NroDePlacaDeInstructor}, Nombre, Apellido, Graduación, \dashuline{ID\_Pais})\\
-CK = \{NroDePlacaDeInstructor\}\\
-PK = \{NroDePlacaDeInstructor\}\\
-FK = \{ID\_Pais\}\\
-\\
-\textbf{Escuela}(\uline{ID\_Escuela}, Nombre, \dashuline{ID\_Pais}, \dashuline{NroDePlacaDeInstructor})\\
+\textbf{Escuela}(\uline{ID\_Escuela}, Nombre, \dashuline{ID\_Pais})\\
 CK = \{ID\_Escuela\}\\
 PK = \{ID\_Escuela\}\\
-FK = \{ID\_Pais, NroDePlacaDeInstructor\}\\
+FK = \{ID\_Pais\}\\
 \\
-\textbf{Alumno}(\uline{ID\_Alumno}, Nombre, Apellido, NúmeroCertificadoGraduación, Graduación, Foto, \dashuline{ID\_Escuela})\\
-CK = \{ID\_Alumno\}\\
-PK = \{ID\_Alumno\}\\
+\textbf{Maestro}(\uline{NroDePlacaDeInstructor}, Nombre, Apellido, Graduación, \dashuline{ID\_Pais}, \dashuline{ID\_Escuela})\\
+CK = \{NroDePlacaDeInstructor\}\\
+PK = \{NroDePlacaDeInstructor\}\\
+FK = \{ID\_Pais, ID\_Escuela\}\\
+\\
+\textbf{Alumno}(\uline{DNI}, Nombre, Apellido, NroCertificadoGraduaciónITF, Graduación, Foto, \dashuline{ID\_Escuela})\\
+CK = \{DNI\}\\
+PK = \{DNI\}\\
 FK = \{ID\_Escuela\}\\
-\\
-\textbf{Competidor}(\uline{\dashuline{ID\_Alumno}},DNI, FechaDeNacimiento, Sexo, Peso, Titular, \dashuline{ID\_Equipo})\\
-CK = \{ID\_Alumno\}\\
-PK = \{ID\_Alumno\}\\
-FK = \{ID\_Alumno, ID\_Equipo\}\\
-\\
-\textbf{Coach}(\uline{\dashuline{ID\_Alumno}})\\
-PK = \{ID\_Alumno\}\\
-CK = \{ID\_Alumno\}\\
-FK = \{ID\_Alumno\}\\
 \\
 \textbf{Equipo}(\uline{ID\_Equipo}, NombreDeFantasia)\\
 PK = \{ID\_Equipo\}\\
 CK = \{ID\_Equipo\}\\
 \\
-\textbf{Árbitro}(\uline{nroDePlacaDeÁrbitro}, Nombre, Apellido, Graduación, Tipo, \dashuline{ID\_Pais})\\
-CK = \{nroDePlacaDeÁrbitro\}\\
-PK = \{nroDePlacaDeÁrbitro\}\\
+\textbf{Competidor}(\uline{\dashuline{DNI}}, FechaDeNacimiento, Sexo, Peso, Titular, \dashuline{ID\_Equipo})\\
+CK = \{DNI\}\\
+PK = \{DNI\}\\
+FK = \{DNI, ID\_Equipo\}\\
+\\
+\textbf{Coach}(\uline{\dashuline{DNI}})\\
+PK = \{DNI\}\\
+CK = \{DNI\}\\
+FK = \{DNI\}\\
+\\
+\textbf{Árbitro}(\uline{NroDePlacaDeÁrbitro}, Nombre, Apellido, Graduación, Tipo, \dashuline{ID\_Pais})\\
+CK = \{NroDePlacaDeÁrbitro\}\\
+PK = \{NroDePlacaDeÁrbitro\}\\
 FK = \{ID\_Pais\}\\
-\\
-\textbf{PresidenteDeMesa}(\dashuline{\uline{nroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
-PK = \{nroDePlacaDeÁrbitro\}\\
-CK = \{nroDePlacaDeÁrbitro\}\\
-FK = \{nroDePlacaDeÁrbitro, ID\_Ring\}\\
-\\
-\textbf{Juez}(\dashuline{\uline{nroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
-PK = \{nroDePlacaDeÁrbitro\}\\
-CK = \{nroDePlacaDeÁrbitro\}\\
-FK = \{nroDePlacaDeÁrbitro, ID\_Ring\}\\
-\\
-\textbf{ÁrbitroCentral}(\dashuline{\uline{nroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
-PK = \{nroDePlacaDeÁrbitro\}\\
-CK = \{nroDePlacaDeÁrbitro\}\\
-FK = \{nroDePlacaDeÁrbitro, ID\_Ring\}\\
-\\
-\textbf{ÁrbitroDeRecambio}(\dashuline{\uline{nroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
-PK = \{nroDePlacaDeÁrbitro\}\\
-CK = \{nroDePlacaDeÁrbitro\}\\
-FK = \{nroDePlacaDeÁrbitro, ID\_Ring\}\\
 \\
 \textbf{Ring}(\uline{ID\_Ring})\\
 PK = \{ID\_Ring\}\\
 CK = \{ID\_Ring\}\\
+\\
+\textbf{PresidenteDeMesa}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
+PK = \{NroDePlacaDeÁrbitro\}\\
+CK = \{NroDePlacaDeÁrbitro\}\\
+FK = \{NroDePlacaDeÁrbitro, ID\_Ring\}\\
+\\
+\textbf{Juez}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
+PK = \{NroDePlacaDeÁrbitro\}\\
+CK = \{NroDePlacaDeÁrbitro\}\\
+FK = \{NroDePlacaDeÁrbitro, ID\_Ring\}\\
+\\
+\textbf{ÁrbitroCentral}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
+PK = \{NroDePlacaDeÁrbitro\}\\
+CK = \{NroDePlacaDeÁrbitro\}\\
+FK = \{NroDePlacaDeÁrbitro, ID\_Ring\}\\
+\\
+\textbf{ÁrbitroDeRecambio}(\dashuline{\uline{NroDePlacaDeÁrbitro}}, \dashuline{ID\_Ring})\\
+PK = \{NroDePlacaDeÁrbitro\}\\
+CK = \{NroDePlacaDeÁrbitro\}\\
+FK = \{NroDePlacaDeÁrbitro, ID\_Ring\}\\
 \\
 \textbf{Competencia}(\uline{ID\_Competencia}, Tipo)\\
 PK = \{ID\_Competencia\}\\
