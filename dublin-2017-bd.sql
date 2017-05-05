@@ -1,44 +1,40 @@
 BEGIN TRANSACTION;
 CREATE TABLE "Ring" (
-	"IdRing"	INTEGER NOT NULL,
-	PRIMARY KEY("IdRing")
+	"IdRing"	SERIAL PRIMARY KEY,
+	"Nombre"	TEXT
 );
 CREATE TABLE "Pais" (
-	"IdPais"	INTEGER NOT NULL,
-	"Nombre"	TEXT NOT NULL UNIQUE,
-	PRIMARY KEY("IdPais")
+	"IdPais"	SERIAL PRIMARY KEY,
+	"Nombre"	TEXT NOT NULL UNIQUE
 );
 CREATE TABLE "Competencia" (
-	"IdCompetencia"	INTEGER NOT NULL,
-	"TipoCompetencia"	INTEGER NOT NULL,
-	PRIMARY KEY("IdCompetencia")
+	"IdCompetencia"	SERIAL PRIMARY KEY,
+	"Sexo"	TEXT NOT NULL,
+	"TipoCompetencia"	INTEGER NOT NULL
 );
 CREATE TABLE "Escuela" (
-	"IdEscuela"	INTEGER NOT NULL,
+	"IdEscuela"	SERIAL PRIMARY KEY,
 	"Nombre"	TEXT NOT NULL,
 	"IdPais"	INTEGER,
-	PRIMARY KEY("IdEscuela"),
 	FOREIGN KEY("IdPais") REFERENCES "Pais"("IdPais")
 );
 CREATE TABLE "Arbitro" (
-	"NroPlacaArbitro"	INTEGER NOT NULL,
+	"NroPlacaArbitro"	INTEGER PRIMARY KEY,
 	"Nombre"	TEXT NOT NULL,
 	"Apellido"	TEXT NOT NULL,
 	"Graduacion"	INTEGER NOT NULL,
 	"IdPais"	INTEGER,
 	"Tipo"	TEXT NOT NULL,
-	PRIMARY KEY("NroPlacaArbitro"),
 	FOREIGN KEY("IdPais") REFERENCES "Pais"("IdPais")
 );
 CREATE TABLE "Alumno" (
-	"DNI"	INTEGER NOT NULL,
+	"DNI"	INTEGER PRIMARY KEY,
 	"IdEscuela"	INTEGER NOT NULL,
 	"Nombre"	INTEGER NOT NULL,
 	"Apellido"	INTEGER NOT NULL,
 	"Graduacion"	INTEGER NOT NULL,
 	"NroCertificadoGraduacionITF"	INTEGER NOT NULL,
 	"Foto"	TEXT NOT NULL,
-	PRIMARY KEY("DNI"),
 	FOREIGN KEY("IdEscuela") REFERENCES "Escuela"("IdEscuela")
 );
 CREATE TABLE "Coach" (
@@ -47,18 +43,16 @@ CREATE TABLE "Coach" (
 	FOREIGN KEY("DNI") REFERENCES "Alumno"("DNI")
 );
 CREATE TABLE "Equipo" (
-	"IdEquipo"	INTEGER NOT NULL,
-	"NombreDeFantasia"	TEXT NOT NULL,
-	PRIMARY KEY("IdEquipo")
+	"IdEquipo"	SERIAL PRIMARY KEY,
+	"NombreDeFantasia"	TEXT NOT NULL
 );
 CREATE TABLE "Maestro" (
-	"NroDePlacaDeInstructor"	INTEGER NOT NULL,
+	"NroDePlacaDeInstructor"	INTEGER PRIMARY KEY,
 	"Nombre"	TEXT NOT NULL,
 	"Apellido"	TEXT NOT NULL,
 	"Graduacion"	INTEGER,
 	"IdPais"	INTEGER,
 	"IdEscuela"	INTEGER,
-	PRIMARY KEY("NroDePlacaDeInstructor"),
 	FOREIGN KEY("IdPais") REFERENCES "Pais"("IdPais"),
 	FOREIGN KEY("IdEscuela") REFERENCES "Escuela"("IdEscuela")
 );
@@ -108,15 +102,11 @@ CREATE TABLE "Competidor" (
 CREATE TABLE "CompetenciaSalto" (
 	"IdCompetencia"	INTEGER NOT NULL,
 	"Edad"	INTEGER NOT NULL,
-	"Sexo"	TEXT NOT NULL,
-	"Graduacion"	INTEGER NOT NULL,
 	PRIMARY KEY("IdCompetencia"),
 	FOREIGN KEY("IdCompetencia") REFERENCES "Competencia"("IdCompetencia")
 );
 CREATE TABLE "CompetenciaRotura" (
 	"IdCompetencia"	INTEGER NOT NULL,
-	"Sexo"	TEXT NOT NULL,
-	"Graduacion"	INTEGER NOT NULL,
 	PRIMARY KEY("IdCompetencia"),
 	FOREIGN KEY("IdCompetencia") REFERENCES "Competencia"("IdCompetencia")
 );
@@ -125,6 +115,7 @@ CREATE TABLE "CompetenciaIndividual" (
 	"PrimerLugar"	INTEGER,
 	"SegundoLugar"	INTEGER,
 	"TercerLugar"	INTEGER,
+	"Graduacion"	INTEGER NOT NULL,
 	"Modalidad"	INTEGER NOT NULL,
 	PRIMARY KEY("IdCompetencia"),
 	FOREIGN KEY("IdCompetencia") REFERENCES "Competencia"("IdCompetencia"),
@@ -135,16 +126,12 @@ CREATE TABLE "CompetenciaIndividual" (
 CREATE TABLE "CompetenciaFormas" (
 	"IdCompetencia"	INTEGER NOT NULL,
 	"Edad"	INTEGER NOT NULL,
-	"Sexo"	TEXT NOT NULL,
-	"Graduacion"	INTEGER NOT NULL,
 	PRIMARY KEY("IdCompetencia"),
 	FOREIGN KEY("IdCompetencia") REFERENCES "Competencia"("IdCompetencia")
 );
 CREATE TABLE "CompetenciaCombateIndividual" (
 	"IdCompetencia"	INTEGER NOT NULL,
 	"Edad"	INTEGER NOT NULL,
-	"Sexo"	TEXT NOT NULL,
-	"Graduacion"	INTEGER NOT NULL,
 	"Peso"	INTEGER NOT NULL,
 	PRIMARY KEY("IdCompetencia"),
 	FOREIGN KEY("IdCompetencia") REFERENCES "Competencia"("IdCompetencia")
@@ -155,7 +142,6 @@ CREATE TABLE "CompetenciaCombateEquipos" (
 	"SegundoLugar"	INTEGER,
 	"TercerLugar"	INTEGER,
 	"Edad"	INTEGER NOT NULL,
-	"Sexo"	TEXT NOT NULL,
 	PRIMARY KEY("IdCompetencia"),
 	FOREIGN KEY("IdCompetencia") REFERENCES "Competencia"("IdCompetencia"),
 	FOREIGN KEY("PrimerLugar") REFERENCES "Alumno"("DNI"),
