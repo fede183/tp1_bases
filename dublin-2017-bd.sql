@@ -29,8 +29,8 @@ CREATE TABLE "Arbitro" (
 CREATE TABLE "Alumno" (
 	"DNI"	INTEGER PRIMARY KEY,
 	"IdEscuela"	INTEGER NOT NULL,
-	"Nombre"	INTEGER NOT NULL,
-	"Apellido"	INTEGER NOT NULL,
+	"Nombre"	TEXT NOT NULL,
+	"Apellido"	TEXT NOT NULL,
 	"Graduacion"	INTEGER NOT NULL,
 	"NroCertificadoGraduacionITF"	INTEGER NOT NULL,
 	"Foto"	TEXT NOT NULL,
