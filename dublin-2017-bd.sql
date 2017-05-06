@@ -1,19 +1,18 @@
 BEGIN TRANSACTION;
 CREATE TABLE "Ring" (
-	"IdRing"	SERIAL PRIMARY KEY,
-	"Nombre"	TEXT
+	"IdRing"	INTEGER PRIMARY KEY
 );
 CREATE TABLE "Pais" (
-	"IdPais"	SERIAL PRIMARY KEY,
+	"IdPais"	INTEGER PRIMARY KEY,
 	"Nombre"	TEXT NOT NULL UNIQUE
 );
 CREATE TABLE "Competencia" (
-	"IdCompetencia"	SERIAL PRIMARY KEY,
+	"IdCompetencia"	INTEGER PRIMARY KEY,
 	"Sexo"	TEXT NOT NULL,
 	"TipoCompetencia"	INTEGER NOT NULL
 );
 CREATE TABLE "Escuela" (
-	"IdEscuela"	SERIAL PRIMARY KEY,
+	"IdEscuela"	INTEGER PRIMARY KEY,
 	"Nombre"	TEXT NOT NULL,
 	"IdPais"	INTEGER,
 	FOREIGN KEY("IdPais") REFERENCES "Pais"("IdPais")
@@ -43,7 +42,7 @@ CREATE TABLE "Coach" (
 	FOREIGN KEY("DNI") REFERENCES "Alumno"("DNI")
 );
 CREATE TABLE "Equipo" (
-	"IdEquipo"	SERIAL PRIMARY KEY,
+	"IdEquipo"	INTEGER PRIMARY KEY,
 	"NombreDeFantasia"	TEXT NOT NULL
 );
 CREATE TABLE "Maestro" (
