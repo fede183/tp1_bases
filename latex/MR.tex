@@ -62,36 +62,36 @@ PK = \{NroDePlacaDeÁrbitro\}\\
 CK = \{NroDePlacaDeÁrbitro\}\\
 FK = \{NroDePlacaDeÁrbitro, IdRing\}\\
 \\
-\textbf{Competencia}(\uline{IdCompetencia}, Tipo)\\
+\textbf{Competencia}(\uline{IdCompetencia}, Sexo, Tipo)\\
 PK = \{IdCompetencia\}\\
 CK = \{IdCompetencia\}\\
 \\
-\textbf{CompetenciaCombateEquipo}(\dashuline{\uline{IdCompetencia}}, Edad, Sexo, \dashuline{PrimerLugar}, \dashuline{SegundoLugar}, \dashuline{TercerLugar})\\
-PK = \{IdCompetencia\}\\
-CK = \{IdCompetencia\}\\
-FK = \{IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar\}\\
-\\
-\textbf{CompetenciaIndividual}(\dashuline{\uline{IdCompetencia}}, Modalidad, \dashuline{PrimerLugar}, \dashuline{SegundoLugar}, \dashuline{TercerLugar})\\
+\textbf{CompetenciaCombateEquipo}(\dashuline{\uline{IdCompetencia}}, Edad, \dashuline{PrimerLugar}, \dashuline{SegundoLugar}, \dashuline{TercerLugar})\\
 PK = \{IdCompetencia\}\\
 CK = \{IdCompetencia\}\\
 FK = \{IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar\}\\
 \\
-\textbf{CompetenciaSalto}(\dashuline{\uline{IdCompetencia}}, Sexo, Edad, Graduacion)\\
+\textbf{CompetenciaIndividual}(\dashuline{\uline{IdCompetencia}}, Modalidad, Graduacion, \dashuline{PrimerLugar}, \dashuline{SegundoLugar}, \dashuline{TercerLugar})\\
+PK = \{IdCompetencia\}\\
+CK = \{IdCompetencia\}\\
+FK = \{IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar\}\\
+\\
+\textbf{CompetenciaSalto}(\dashuline{\uline{IdCompetencia}}, Edad)\\
 PK = \{IdCompetencia\}\\
 CK = \{IdCompetencia\}\\
 FK = \{IdCompetencia\}\\
 \\
-\textbf{CompetenciaFormas}(\dashuline{\uline{IdCompetencia}}, Sexo, Edad, Graduacion)\\
+\textbf{CompetenciaFormas}(\dashuline{\uline{IdCompetencia}}, Edad)\\
 PK = \{IdCompetencia\}\\
 CK = \{IdCompetencia\}\\
 FK = \{IdCompetencia\}\\
 \\
-\textbf{CompetenciaCombateIndividual}(\dashuline{\uline{IdCompetencia}}, Sexo, Edad, Graduacion, Peso)\\
+\textbf{CompetenciaCombateIndividual}(\dashuline{\uline{IdCompetencia}}, Edad, Peso)\\
 PK = \{IdCompetencia\}\\
 CK = \{IdCompetencia\}\\
 FK = \{IdCompetencia\}\\
 \\
-\textbf{CompetenciaRotura}(\dashuline{\uline{IdCompetencia}}, Sexo, Graduacion)\\
+\textbf{CompetenciaRotura}(\dashuline{\uline{IdCompetencia}})\\
 PK = \{IdCompetencia\}\\
 CK = \{IdCompetencia\}\\
 FK = \{IdCompetencia\}\\
