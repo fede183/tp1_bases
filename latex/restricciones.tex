@@ -2,7 +2,7 @@ En esta sección están especificadas todas las restricciones adicionales del ME
 
 \subsection{Restricciónes provenientes del MER:}
 \begin{itemize}
-\item Toda escuela envia un coach por cada cinco competidores inscripctos.
+\item Toda escuela envia un coach por cada cinco competidores inscriptos.
 \item Todos los competidores que pertenecen a un mismo equipo son inscriptos por la misma escuela.
 \item Todo equipo está formado por cinco competidores con el atributo ``Titular'' en true que pertenecen al equipo.
 \item Todo equipo esta formado por al menos tres competidores con el atributo ``Titular'' en false que pertenecen al equipo.
@@ -15,10 +15,12 @@ En esta sección están especificadas todas las restricciones adicionales del ME
 \item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde todos los jueces sean árbitros con graduación mayor a la de la competencia.
 \item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde el árbitro central sea un árbitro con graduación mayor a la de la competencia.
 \item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde todos los árbitros de recambio sean árbitros con graduación mayor a la de la competencia.
-\item Ningún competidor puede estar en más de una de las siguientes relaciones: ``Primer lugar en'', ``Segundo lugar en'', ``Tercer lugar en''.
+\item Todo ring tiene al menos tres arbitros de recambio.
+\item Ningún competidor puede estar en más de una de las siguientes relaciones: ``Primer lugar en'', ``Segundo lugar en'', ``Tercer lugar en'' en una misma competencia.
+\item Ningún equipo puede estar en más de una de las siguientes relaciones: ``Primer lugar en'', ``Segundo lugar en'', ``Tercer lugar en'' en una misma competencia.
 \item Todo competidor que está en alguna de las relaciones ``Primer lugar en'', ``Segundo lugar en'' o ``Tercer lugar en'' debe estar inscripto a dicha competencia a la cual pertenece la relación.
-\item Ningún equipo puede estar en más de una de las siguientes relaciones: ``Primer lugar en'', ``Segundo lugar en'', ``Tercer lugar en''.
 \item Todo Equipo que está en alguna de las relaciones ``Primer lugar en'', ``Segundo lugar en'' o ``Tercer lugar en'' debe estar inscripto y habilitado en dicha competencia a la cual pertenece la relación.
+\item Cada competidor puede estar inscripto en una sola categoria.
 \end{itemize}
 
 \subsection{Restricciones provenientes del MR:}
