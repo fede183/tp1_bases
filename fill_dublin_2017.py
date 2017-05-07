@@ -38,6 +38,18 @@ insertQueries = {
 	'SeRealizaEn' : """INSERT INTO "SeRealizaEn" ("IdCompetencia", "IdRing") VALUES (%s, %s);""",
 }
 
+updates = {}
+updates['CompetenciaIndividual'] = [
+""" UPDATE "CompetenciaIndividual" SET "PrimerLugar" = %s WHERE "IdCompetencia" = %s; """,
+""" UPDATE "CompetenciaIndividual" SET "SegundoLugar" = %s WHERE "IdCompetencia" = %s; """,
+""" UPDATE "CompetenciaIndividual" SET "TercerLugar" = %s WHERE "IdCompetencia" = %s; """,
+]
+updates['CompetenciaCombateEquipos'] = [
+""" UPDATE "CompetenciaCombateEquipos" SET "PrimerLugar" = %s WHERE "IdCompetencia" = %s; """,
+""" UPDATE "CompetenciaCombateEquipos" SET "SegundoLugar" = %s WHERE "IdCompetencia" = %s; """,
+""" UPDATE "CompetenciaCombateEquipos" SET "TercerLugar" = %s WHERE "IdCompetencia" = %s; """,
+]
+
 queries = {
 	'available_teams': """	SELECT e."IdEquipo", e."NombreDeFantasia" 
 								FROM "Equipo" e 
@@ -55,22 +67,35 @@ queries = {
 							FROM "Competidor" c, "Alumno" a 
 							WHERE c."DNI" = a."DNI"
 							AND a."IdEscuela" = %s; """,
+	'inscriptos': """ SELECT i."DNIAlumno" FROM "InscriptoEn" i WHERE i."IdCompetencia" = %s; """,
+	'equiposInscriptos': """ SELECT i."IdEquipo" FROM "EquipoInscriptoEn" i WHERE i."IdCompetencia" = %s; """,
 	'schools': """ SELECT e."IdEscuela", e."Nombre", e."IdPais" FROM "Escuela" e; """,
+	'competidores': """SELECT c."DNI" FROM "Competidor" c;""",
+	'equipos': """SELECT e."IdEquipo" FROM "Equipo" e;""",
+	'CompetenciaCombateEquipos': """SELECT c."IdCompetencia" FROM "CompetenciaCombateEquipos" c;""",
+	'CompetenciaIndividual': """ SELECT c."IdCompetencia" FROM "CompetenciaIndividual" c; """,
+	'CompetenciaSalto': """SELECT c."IdCompetencia" FROM "CompetenciaSalto" c;""",
+	'CompetenciaFormas': """SELECT c."IdCompetencia" FROM "CompetenciaFormas" c;""",
+	'CompetenciaCombateIndividual': """SELECT c."IdCompetencia" FROM "CompetenciaCombateIndividual" c;""",
+	'CompetenciaRotura': """SELECT c."IdCompetencia" FROM "CompetenciaRotura" c;""",
+	'competidor_coaches': """	SELECT c."DNI" 
+							FROM "Alumno" a1, "Alumno" a2, "Coach" c
+							WHERE a2."DNI" = c."DNI"
+							AND a1."DNI" = %s
+							AND a1."DNI" <> a2."DNI"
+							AND a1."IdEscuela" = a2."IdEscuela"; """,
+	'equipo_coaches': """ 	SELECT c."DNI"
+							FROM "Alumno" a, "Coach" c
+							WHERE a."DNI" = c."DNI"
+							AND a."IdEscuela" = (	SELECT a."IdEscuela"
+													FROM "Competidor" c, "Alumno" a
+													WHERE a."DNI" = c."DNI"
+													AND c."IdEquipo" = %s
+													LIMIT 1 )
+							AND c."DNI" NOT IN (SELECT c."DNI"
+												FROM "Competidor" c
+												WHERE c."IdEquipo" = %s); """,
 }
-
-def bernoulli(p): return True if random() <= p else False
-
-def doInsert(conn,table,values):
-    cur = conn.cursor()
-    cur.execute(insertQueries[table],values)
-    conn.commit()
-
-def doQuery(conn, query, values):
-	#cur = conn.cursor()
-	#cur.execute(query,values)
-	#data = cur.fetchall()
-	#res = pd.DataFrame([i for i in data])
-	return pd.read_sql_query(query, conn, params=values)
 
 paises = pd.read_csv('csv/paises.csv', sep=',')
 nombres = pd.read_csv('csv/nombres.csv', sep=',')
@@ -89,20 +114,42 @@ nroPlaca = []
 while len(nroPlaca) < 10000:
 	nroPlaca = list(set(nroPlaca+[randint(1,90000) for i in range(10000-len(nroPlaca))]))
 
+def bernoulli(p): return True if random() <= p else False
+
+# Query functions
+
+def doInsert(conn,table,values=[]):
+    cur = conn.cursor()
+    cur.execute(insertQueries[table],values)
+    conn.commit()
+
+def doUpdate(conn,query,values=[]):
+    cur = conn.cursor()
+    cur.execute(query,values)
+    conn.commit()
+
+def doQuery(conn, query, values=[]):
+	#cur = conn.cursor()
+	#cur.execute(query,values)
+	#data = cur.fetchall()
+	#res = pd.DataFrame([i for i in data])
+	return pd.read_sql_query(query, conn, params=values)
+
+# Loaders
 
 def loadPaises(conn):
 	print("Cargando Paises...")
 	IdPais = 0
-	for r in tqdm(paises.iterrows()):
+	for r in tqdm(range(len(paises))):
 		IdPais += 1
-		doInsert(conn, 'Pais', [IdPais, r[1]['Nombre']])
+		doInsert(conn, 'Pais', [IdPais, paises['Nombre'][r]])
 
 def loadEscuelas(conn):
 	print("Cargando Escuelas...")
 	IdEscuela = 0
-	for r in tqdm(escuelas.iterrows()):
+	for r in tqdm(range(len(escuelas))):
 		IdEscuela += 1
-		doInsert(conn, 'Escuela', [IdEscuela, r[1]['Nombre'], randint(1,len(paises))])
+		doInsert(conn, 'Escuela', [IdEscuela, escuelas['Nombre'][r], randint(1,len(paises))])
 
 def loadMaestro(conn):
 	print("Cargando Maestros...")
@@ -114,7 +161,7 @@ def loadMaestro(conn):
 									apellidos['Apellido'][randint(1,len(apellidos))],
 									randint(1,9),
 									randint(1,len(paises)),
-									r ])
+									r+1 ])
 
 def loadRings(conn):
 	print("Cargando Rings...")
@@ -158,7 +205,6 @@ def insertAlumno(conn, alumno):
 								alumno['graduation'],
 								alumno['NroCertificadoGraduacionITF'],
 								alumno['name'] + "-" + alumno['last_name'] + ".jpg"])
-
 
 def insertCompetidor(conn, alumno, compite_en_equipo):
 	titular = 0
@@ -312,14 +358,81 @@ def loadArbitros(conn):
 			insertArbitro(conn,arbitro,3)
 			doInsert(conn, 'ArbitroDeRecambio', [arbitro['NroPlacaArbitro'], rings['IdRing'][r1]])
 
-def loadInscriptos(conn):
-	print "Cargando inscripciones individuales..."
-	
+def loadInscriptosEn(conn):
+	print "Cargando inscripciones competencia salto..."
+	inserInscriptosEn(conn, 'CompetenciaSalto')
+	print "Cargando inscripciones competencia formas..."
+	inserInscriptosEn(conn, 'CompetenciaFormas')
+	print "Cargando inscripciones competencia combate individual..."
+	inserInscriptosEn(conn, 'CompetenciaCombateIndividual')
+	print "Cargando inscripciones competencia rotura..."
+	inserInscriptosEn(conn, 'CompetenciaRotura')
+
+def loadEquipoInscriptoEn(conn):
+	print "Cargando inscripciones combate por equipo"
+	equipos = doQuery(conn, queries['equipos'])
+	categorias = doQuery(conn, queries['CompetenciaCombateEquipos'])
+
+	for e in tqdm(range(len(equipos))):
+		equipo = equipos['IdEquipo'][e]
+		for c in tqdm(range(len(categorias))):
+			categoria = categorias['IdCompetencia'][c]
+			coaches = doQuery(conn, queries['equipo_coaches'], [equipo,equipo])
+			if len(coaches) > 0:
+				coach = coaches['DNI'][randint(len(coaches))]
+				doInsert(conn, 'EquipoInscriptoEn', [equipo, categoria, coach]);
+
+def inserInscriptosEn(conn, competencia):
+	competidores = doQuery(conn, queries['competidores'])
+	categorias = doQuery(conn, queries[competencia])
+
+	for c1 in tqdm(range(len(competidores))): 
+		competidor = competidores['DNI'][c1]
+		for c2 in tqdm(range(len(categorias))):
+			categoria = categorias['IdCompetencia'][c2]
+			coaches = doQuery(conn, queries['competidor_coaches'], [competidor])
+			if len(coaches) > 0:
+				coach = coaches['DNI'][randint(len(coaches))]
+				doInsert(conn, 'InscriptoEn', [competidor, coach, categoria]);
+
+def loadPositions(conn):
+	print "Cargando 1ra 2da y 3ra posion de cada competencia individual"
+
+	competencias = doQuery(conn, queries['CompetenciaIndividual'])
+	for c in tqdm(range(len(competencias))):
+		competencia = competencias['IdCompetencia'][c]
+		inscriptos = doQuery(conn, queries['inscriptos'], [competencia])
+		ganadores = []
+		while len(inscriptos) > 0 and len(ganadores) < 3:
+			nro = randint(len(inscriptos))
+			ganadores.append(inscriptos['DNIAlumno'][nro])
+			inscriptos.drop(nro)
+		for i in tqdm(range(len(ganadores))):
+			doUpdate(conn, updates['CompetenciaIndividual'][i], [ganadores[i],competencia])
+
+	competencias = doQuery(conn, queries['CompetenciaCombateEquipos'])
+	for c in tqdm(range(len(competencias))):
+		competencia = competencias['IdCompetencia'][c]
+		inscriptos = doQuery(conn, queries['equiposInscriptos'], [competencia])
+		ganadores = []
+		while len(inscriptos) > 0 and len(ganadores) < 3:
+			nro = randint(len(inscriptos))
+			ganadores.append(inscriptos['IdEquipo'][nro])
+			inscriptos.drop(nro)
+		for i in tqdm(range(len(ganadores))):
+			doUpdate(conn, updates['CompetenciaCombateEquipos'][i], [ganadores[i],competencia])
 
 myConnection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
-#loadCompetidores(myConnection, 400, 0.3)
-#loadCoaches(myConnection, 0.5)
-#loadCompetencias(myConnection)
-#loadArbitros(myConnection)
-print len(dni), len(nroCerITF)
+loadPaises(myConnection)
+loadEscuelas(myConnection)
+loadMaestro(myConnection)
+loadRings(myConnection)
+loadEquipos(myConnection)
+loadCompetidores(myConnection, 400, 0.3)
+loadCoaches(myConnection, 0.5)
+loadCompetencias(myConnection)
+loadArbitros(myConnection)
+loadInscriptosEn(myConnection)
+loadEquipoInscriptoEn(myConnection)
+loadPositions(myConnection)
 myConnection.close()

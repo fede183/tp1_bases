@@ -143,9 +143,9 @@ CREATE TABLE "CompetenciaCombateEquipos" (
 	"Edad"	INTEGER NOT NULL,
 	PRIMARY KEY("IdCompetencia"),
 	FOREIGN KEY("IdCompetencia") REFERENCES "Competencia"("IdCompetencia"),
-	FOREIGN KEY("PrimerLugar") REFERENCES "Alumno"("DNI"),
-	FOREIGN KEY("SegundoLugar") REFERENCES "Alumno"("DNI"),
-	FOREIGN KEY("TercerLugar") REFERENCES "Alumno"("DNI")
+	FOREIGN KEY("PrimerLugar") REFERENCES "Equipo"("IdEquipo"),
+	FOREIGN KEY("SegundoLugar") REFERENCES "Equipo"("IdEquipo"),
+	FOREIGN KEY("TercerLugar") REFERENCES "Equipo"("IdEquipo")
 );
 CREATE TABLE "ArbitroDeRecambio" (
 	"NroPlacaArbitro"	INTEGER,
