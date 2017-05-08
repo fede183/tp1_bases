@@ -89,7 +89,7 @@ CREATE TABLE "EquipoInscriptoEn" (
 );
 CREATE TABLE "Competidor" (
 	"DNI"	INTEGER NOT NULL,
-	"FechaDeNacimiento"	TEXT NOT NULL,
+	"FechaDeNacimiento"	DATE NOT NULL,
 	"Sexo"	TEXT NOT NULL,
 	"Edad"	INTEGER NOT NULL,
 	"Titular"	INTEGER,
@@ -110,7 +110,7 @@ CREATE TABLE "CompetenciaRotura" (
 	FOREIGN KEY("IdCompetencia") REFERENCES "Competencia"("IdCompetencia")
 );
 CREATE TABLE "CompetenciaIndividual" (
-	"IdCompetencia"	INTEGER NOT NULL,
+	"IdCompetencia"	INTEGER CompetenciaCombateEquipos NULL,
 	"PrimerLugar"	INTEGER,
 	"SegundoLugar"	INTEGER,
 	"TercerLugar"	INTEGER,
