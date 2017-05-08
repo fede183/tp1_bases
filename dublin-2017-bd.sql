@@ -286,7 +286,7 @@ CREATE TRIGGER EquipoDistintoCoach BEFORE INSERT OR UPDATE ON "EquipoInscriptoEn
 
 CREATE FUNCTION checkGraduacionArbitroYCompetencia() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM Arbitro a, Ring r, SeRealizaEn s, Competencia c, CompetenciaIndividual ci WHERE NEW.IdRing = r.IdRing AND r.IdRing = s.IdRing AND s.IdCompetencia = c.IdCompetencia AND c.IdCompetencia = ci.IdCompetencia AND NEW.NroPlacaArbitro = a.NroPlacaArbitro AND ci.Graduacion => a.Graduacion) > 0 THEN
+	IF (SELECT COUNT(1) FROM Arbitro a, Ring r, SeRealizaEn s, Competencia c, CompetenciaIndividual ci WHERE NEW.IdRing = r.IdRing AND r.IdRing = s.IdRing AND s.IdCompetencia = c.IdCompetencia AND c.IdCompetencia = ci.IdCompetencia AND NEW.NroPlacaArbitro = a.NroPlacaArbitro AND ci.Graduacion >= a.Graduacion) > 0 THEN
 		RAISE EXCEPTION 'Error: graduacion arbitro menor al de la competencia.';
 	ELSE
 		RETURN NEW;
