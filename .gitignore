@@ -6,3 +6,5 @@ latex/*.out
 latex/*.pdf
 latex/*.toc
 latex/*.synctex.gz
+.vscode
+test_env
