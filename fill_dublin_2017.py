@@ -34,139 +34,139 @@ gflags.DEFINE_string('ringsamount', 20,
 FLAGS = gflags.FLAGS
 
 insertQueries = {
-	'Ring' : """INSERT INTO "Ring" ("IdRing") VALUES (%s);""",
-	'Pais' : """INSERT INTO "Pais" ("IdPais","Nombre") VALUES (%s,%s);""",
-	'Competencia' : """INSERT INTO "Competencia" ("IdCompetencia","Sexo","TipoCompetencia") VALUES (%s, %s, %s);""",
-	'Escuela' : """INSERT INTO "Escuela" ("IdEscuela", "Nombre", "IdPais") VALUES (%s, %s, %s);""",
-	'Arbitro' : """INSERT INTO "Arbitro" ("NroPlacaArbitro", "Nombre", "Apellido", "Graduacion", "IdPais", "Tipo") VALUES (%s,%s ,%s ,%s ,%s ,%s );""",
-	'Alumno' : """INSERT INTO "Alumno" ("DNI", "IdEscuela", "Nombre", "Apellido", "Graduacion", "NroCertificadoGraduacionITF", "Foto") VALUES (%s , %s, %s, %s, %s, %s, %s);""",
-	'Coach' : """INSERT INTO "Coach" ("DNI") VALUES (%s);""",
-	'Equipo' : """INSERT INTO "Equipo" ("IdEquipo", "NombreDeFantasia") VALUES (%s, %s);""",
-	'Maestro' : """INSERT INTO "Maestro" ("NroDePlacaDeInstructor", "Nombre", "Apellido", "Graduacion", "IdPais", "IdEscuela") VALUES (%s, %s, %s, %s, %s, %s);""",
-	'PresidenteDeMesa' : """INSERT INTO "PresidenteDeMesa" ("NroPlacaArbitro", "IdRing") VALUES (%s, %s);""",
-	'Juez' : """INSERT INTO "Juez" ("NroPlacaArbitro", "IdRing") VALUES (%s, %s);""",
-	'InscriptoEn' : """INSERT INTO "InscriptoEn" ("DNIAlumno", "DNICoach", "IdCompetencia") VALUES (%s, %s, %s);""",
-	'EquipoInscriptoEn' : """INSERT INTO "EquipoInscriptoEn" ("IdEquipo", "IdCompetencia", "DNICoach") VALUES (%s, %s, %s);""",
-	'Competidor' : """INSERT INTO "Competidor" ("DNI", "FechaDeNacimiento", "Sexo", "Peso", "Edad", "Titular", "IdEquipo") VALUES (%s, %s, %s, %s, %s, %s, %s);""",
-	'CompetenciaSalto' : """INSERT INTO "CompetenciaSalto" ("IdCompetencia", "Edad") VALUES (%s, %s);""",
-	'CompetenciaRotura' : """INSERT INTO "CompetenciaRotura" ("IdCompetencia") VALUES (%s);""",
-	'CompetenciaIndividual' : """INSERT INTO "CompetenciaIndividual" ("IdCompetencia", "PrimerLugar", "SegundoLugar", "TercerLugar", "Graduacion", "Modalidad") VALUES (%s, %s, %s, %s, %s, %s);""",
-	'CompetenciaFormas' : """INSERT INTO "CompetenciaFormas" ("IdCompetencia", "Edad") VALUES (%s, %s);""",
-	'CompetenciaCombateIndividual' : """INSERT INTO "CompetenciaCombateIndividual" ("IdCompetencia", "Edad", "Peso") VALUES (%s, %s, %s);""",
-	'CompetenciaCombateEquipos' : """INSERT INTO "CompetenciaCombateEquipos" ("IdCompetencia", "PrimerLugar", "SegundoLugar", "TercerLugar", "Edad") VALUES (%s, %s, %s, %s, %s);""",
-	'ArbitroDeRecambio' : """INSERT INTO "ArbitroDeRecambio" ("NroPlacaArbitro", "IdRing") VALUES (%s, %s);""",
-	'ArbitroCentral' : """INSERT INTO "ArbitroCentral" ("NroPlacaArbitro", "IdRing") VALUES (%s, %s);""",
-	'SeRealizaEn' : """INSERT INTO "SeRealizaEn" ("IdCompetencia", "IdRing") VALUES (%s, %s);""",
+	'Ring' : """INSERT INTO Ring (IdRing) VALUES (%s);""",
+	'Pais' : """INSERT INTO Pais (IdPais,Nombre) VALUES (%s,%s);""",
+	'Competencia' : """INSERT INTO Competencia (IdCompetencia,Sexo,TipoCompetencia) VALUES (%s, %s, %s);""",
+	'Escuela' : """INSERT INTO Escuela (IdEscuela, Nombre, IdPais) VALUES (%s, %s, %s);""",
+	'Arbitro' : """INSERT INTO Arbitro (NroPlacaArbitro, Nombre, Apellido, Graduacion, IdPais, Tipo) VALUES (%s,%s ,%s ,%s ,%s ,%s );""",
+	'Alumno' : """INSERT INTO Alumno (DNI, IdEscuela, Nombre, Apellido, Graduacion, NroCertificadoGraduacionITF, Foto) VALUES (%s , %s, %s, %s, %s, %s, %s);""",
+	'Coach' : """INSERT INTO Coach (DNI) VALUES (%s);""",
+	'Equipo' : """INSERT INTO Equipo (IdEquipo, NombreDeFantasia) VALUES (%s, %s);""",
+	'Maestro' : """INSERT INTO Maestro (NroDePlacaDeInstructor, Nombre, Apellido, Graduacion, IdPais, IdEscuela) VALUES (%s, %s, %s, %s, %s, %s);""",
+	'PresidenteDeMesa' : """INSERT INTO PresidenteDeMesa (NroPlacaArbitro, IdRing) VALUES (%s, %s);""",
+	'Juez' : """INSERT INTO Juez (NroPlacaArbitro, IdRing) VALUES (%s, %s);""",
+	'InscriptoEn' : """INSERT INTO InscriptoEn (DNIAlumno, DNICoach, IdCompetencia) VALUES (%s, %s, %s);""",
+	'EquipoInscriptoEn' : """INSERT INTO EquipoInscriptoEn (IdEquipo, IdCompetencia, DNICoach) VALUES (%s, %s, %s);""",
+	'Competidor' : """INSERT INTO Competidor (DNI, FechaDeNacimiento, Sexo, Peso, Edad, Titular, IdEquipo) VALUES (%s, %s, %s, %s, %s, %s, %s);""",
+	'CompetenciaSalto' : """INSERT INTO CompetenciaSalto (IdCompetencia, Edad) VALUES (%s, %s);""",
+	'CompetenciaRotura' : """INSERT INTO CompetenciaRotura (IdCompetencia) VALUES (%s);""",
+	'CompetenciaIndividual' : """INSERT INTO CompetenciaIndividual (IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar, Graduacion, Modalidad) VALUES (%s, %s, %s, %s, %s, %s);""",
+	'CompetenciaFormas' : """INSERT INTO CompetenciaFormas (IdCompetencia, Edad) VALUES (%s, %s);""",
+	'CompetenciaCombateIndividual' : """INSERT INTO CompetenciaCombateIndividual (IdCompetencia, Edad, Peso) VALUES (%s, %s, %s);""",
+	'CompetenciaCombateEquipos' : """INSERT INTO CompetenciaCombateEquipos (IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar, Edad) VALUES (%s, %s, %s, %s, %s);""",
+	'ArbitroDeRecambio' : """INSERT INTO ArbitroDeRecambio (NroPlacaArbitro, IdRing) VALUES (%s, %s);""",
+	'ArbitroCentral' : """INSERT INTO ArbitroCentral (NroPlacaArbitro, IdRing) VALUES (%s, %s);""",
+	'SeRealizaEn' : """INSERT INTO SeRealizaEn (IdCompetencia, IdRing) VALUES (%s, %s);""",
 }
 
 updates = {}
 updates['CompetenciaIndividual'] = [
-""" UPDATE "CompetenciaIndividual" SET "PrimerLugar" = %s WHERE "IdCompetencia" = %s; """,
-""" UPDATE "CompetenciaIndividual" SET "SegundoLugar" = %s WHERE "IdCompetencia" = %s; """,
-""" UPDATE "CompetenciaIndividual" SET "TercerLugar" = %s WHERE "IdCompetencia" = %s; """,
+""" UPDATE CompetenciaIndividual SET PrimerLugar = %s WHERE IdCompetencia = %s; """,
+""" UPDATE CompetenciaIndividual SET SegundoLugar = %s WHERE IdCompetencia = %s; """,
+""" UPDATE CompetenciaIndividual SET TercerLugar = %s WHERE IdCompetencia = %s; """,
 ]
 updates['CompetenciaCombateEquipos'] = [
-""" UPDATE "CompetenciaCombateEquipos" SET "PrimerLugar" = %s WHERE "IdCompetencia" = %s; """,
-""" UPDATE "CompetenciaCombateEquipos" SET "SegundoLugar" = %s WHERE "IdCompetencia" = %s; """,
-""" UPDATE "CompetenciaCombateEquipos" SET "TercerLugar" = %s WHERE "IdCompetencia" = %s; """,
+""" UPDATE CompetenciaCombateEquipos SET PrimerLugar = %s WHERE IdCompetencia = %s; """,
+""" UPDATE CompetenciaCombateEquipos SET SegundoLugar = %s WHERE IdCompetencia = %s; """,
+""" UPDATE CompetenciaCombateEquipos SET TercerLugar = %s WHERE IdCompetencia = %s; """,
 ]
 
 queries = {
-	'available_teams': """	SELECT DISTINCT e."IdEquipo", e."NombreDeFantasia" 
-							FROM "Equipo" e 
+	'available_teams': """	SELECT DISTINCT e.IdEquipo, e.NombreDeFantasia 
+							FROM Equipo e 
 							WHERE NOT EXISTS (
 								SELECT * 
-								FROM "Competidor" c, "Alumno" a
-								WHERE a."DNI" = c."DNI" 
-								AND c."IdEquipo" = e."IdEquipo"
-								AND a."IdEscuela" <> %s);""",
+								FROM Competidor c, Alumno a
+								WHERE a.DNI = c.DNI 
+								AND c.IdEquipo = e.IdEquipo
+								AND a.IdEscuela <> %s);""",
 	'team_members': """ SELECT DISTINCT c
-						FROM "Competidor" c, "Equipo" e
-						WHERE e."IdEquipo" = %s
-						AND c."IdEquipo" = e."IdEquipo";""",
-	'school_students': """	SELECT DISTINCT c."DNI" 
-							FROM "Competidor" c, "Alumno" a 
-							WHERE c."DNI" = a."DNI"
-							AND a."IdEscuela" = %s; """,
-	'school_student_not_coach': """	SELECT DISTINCT c."DNI" 
-									FROM "Competidor" c, "Alumno" a 
-									WHERE c."DNI" = a."DNI"
-									AND a."IdEscuela" = %s
+						FROM Competidor c, Equipo e
+						WHERE e.IdEquipo = %s
+						AND c.IdEquipo = e.IdEquipo;""",
+	'school_students': """	SELECT DISTINCT c.DNI 
+							FROM Competidor c, Alumno a 
+							WHERE c.DNI = a.DNI
+							AND a.IdEscuela = %s; """,
+	'school_student_not_coach': """	SELECT DISTINCT c.DNI 
+									FROM Competidor c, Alumno a 
+									WHERE c.DNI = a.DNI
+									AND a.IdEscuela = %s
 									AND NOT EXISTS (
 										SELECT * 
-										FROM "Coach" co 
-										WHERE co."DNI" = c."DNI"); """,
-	'inscriptos': """ SELECT i."DNIAlumno" FROM "InscriptoEn" i WHERE i."IdCompetencia" = %s; """,
-	'equiposInscriptos': """ SELECT i."IdEquipo" FROM "EquipoInscriptoEn" i WHERE i."IdCompetencia" = %s; """,
-	'schools': """ SELECT e."IdEscuela", e."Nombre", e."IdPais" FROM "Escuela" e; """,
-	'competidores_CompetenciaSalto': """	SELECT DISTINCT c."DNI" 
-								FROM "Alumno" a, "Competidor" c, "Competencia" competencia, "CompetenciaIndividual" competenciaIndividual, "CompetenciaSalto" competenciaSalto 
-								WHERE competencia."IdCompetencia" = %s
-								AND competenciaIndividual."IdCompetencia" = competencia."IdCompetencia"
-								AND competenciaSalto."IdCompetencia" = competencia."IdCompetencia"
-								AND a."DNI" = c."DNI"
-								AND a."Graduacion" = competenciaIndividual."Graduacion"
-								AND c."Sexo" = competencia."Sexo"
-								AND c."Edad" <= competenciaSalto."Edad"
-								AND c."Edad" > competenciaSalto."Edad"-20;""",
-	'competidores_CompetenciaRotura': """	SELECT DISTINCT c."DNI" 
-								FROM "Alumno" a, "Competidor" c, "Competencia" competencia, "CompetenciaIndividual" competenciaIndividual, "CompetenciaRotura" competenciaRotura 
-								WHERE competencia."IdCompetencia" = %s
-								AND competenciaIndividual."IdCompetencia" = competencia."IdCompetencia"
-								AND competenciaRotura."IdCompetencia" = competencia."IdCompetencia"
-								AND a."DNI" = c."DNI"
-								AND a."Graduacion" = competenciaIndividual."Graduacion"
-								AND c."Sexo" = competencia."Sexo";""",
-	'competidores_CompetenciaFormas': """	SELECT DISTINCT c."DNI" 
-								FROM "Alumno" a, "Competidor" c, "Competencia" competencia, "CompetenciaIndividual" competenciaIndividual, "CompetenciaFormas" competenciaFormas 
-								WHERE competencia."IdCompetencia" = %s
-								AND competenciaIndividual."IdCompetencia" = competencia."IdCompetencia"
-								AND competenciaFormas."IdCompetencia" = competencia."IdCompetencia"
-								AND a."DNI" = c."DNI"
-								AND c."Edad" <= competenciaFormas."Edad"
-								AND c."Edad" > competenciaFormas."Edad"-20
-								AND a."Graduacion" = competenciaIndividual."Graduacion"
-								AND c."Sexo" = competencia."Sexo";""",
-	'competidores_CompetenciaCombateIndividual': """	SELECT DISTINCT c."DNI" 
-									FROM "Alumno" a, "Competidor" c, "Competencia" competencia, "CompetenciaIndividual" competenciaIndividual, "CompetenciaCombateIndividual" competenciaCombateIndividual 
-									WHERE competencia."IdCompetencia" = %s
-									AND competenciaIndividual."IdCompetencia" = competencia."IdCompetencia"
-									AND competenciaCombateIndividual."IdCompetencia" = competencia."IdCompetencia"
-									AND a."DNI" = c."DNI"
-									AND c."Edad" <= competenciaCombateIndividual."Edad"
-									AND c."Edad" > competenciaCombateIndividual."Edad"-20
-									AND c."Peso" <= competenciaCombateIndividual."Peso"
-									AND c."Peso" > competenciaCombateIndividual."Peso"-10
-									AND a."Graduacion" = competenciaIndividual."Graduacion"
-									AND c."Sexo" = competencia."Sexo";""",
-	'competidores': """SELECT DISTINCT c."DNI" FROM "Competidor" c;""",
-	'equipos': """SELECT DISTINCT e."IdEquipo" FROM "Equipo" e;""",
-	'CompetenciaCombateEquipos': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaCombateEquipos" c;""",
-	'CompetenciaIndividual': """ SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaIndividual" c; """,
-	'CompetenciaSalto': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaSalto" c;""",
-	'CompetenciaFormas': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaFormas" c;""",
-	'CompetenciaCombateIndividual': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaCombateIndividual" c;""",
-	'CompetenciaRotura': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaRotura" c;""",
-	'competidor_coaches': """	SELECT DISTINCT c."DNI" 
-								FROM "Alumno" a1, "Alumno" a2, "Coach" c
-								WHERE a2."DNI" = c."DNI"
-								AND a1."DNI" = %s
-								AND a1."DNI" <> a2."DNI"
-								AND a1."IdEscuela" = a2."IdEscuela"
+										FROM Coach co 
+										WHERE co.DNI = c.DNI); """,
+	'inscriptos': """ SELECT i.DNIAlumno FROM InscriptoEn i WHERE i.IdCompetencia = %s; """,
+	'equiposInscriptos': """ SELECT i.IdEquipo FROM EquipoInscriptoEn i WHERE i.IdCompetencia = %s; """,
+	'schools': """ SELECT e.IdEscuela, e.Nombre, e.IdPais FROM Escuela e; """,
+	'competidores_CompetenciaSalto': """	SELECT DISTINCT c.DNI 
+								FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaSalto competenciaSalto 
+								WHERE competencia.IdCompetencia = %s
+								AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
+								AND competenciaSalto.IdCompetencia = competencia.IdCompetencia
+								AND a.DNI = c.DNI
+								AND a.Graduacion = competenciaIndividual.Graduacion
+								AND c.Sexo = competencia.Sexo
+								AND c.Edad <= competenciaSalto.Edad
+								AND c.Edad > competenciaSalto.Edad-20;""",
+	'competidores_CompetenciaRotura': """	SELECT DISTINCT c.DNI 
+								FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaRotura competenciaRotura 
+								WHERE competencia.IdCompetencia = %s
+								AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
+								AND competenciaRotura.IdCompetencia = competencia.IdCompetencia
+								AND a.DNI = c.DNI
+								AND a.Graduacion = competenciaIndividual.Graduacion
+								AND c.Sexo = competencia.Sexo;""",
+	'competidores_CompetenciaFormas': """	SELECT DISTINCT c.DNI 
+								FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaFormas competenciaFormas 
+								WHERE competencia.IdCompetencia = %s
+								AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
+								AND competenciaFormas.IdCompetencia = competencia.IdCompetencia
+								AND a.DNI = c.DNI
+								AND c.Edad <= competenciaFormas.Edad
+								AND c.Edad > competenciaFormas.Edad-20
+								AND a.Graduacion = competenciaIndividual.Graduacion
+								AND c.Sexo = competencia.Sexo;""",
+	'competidores_CompetenciaCombateIndividual': """	SELECT DISTINCT c.DNI 
+									FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaCombateIndividual competenciaCombateIndividual 
+									WHERE competencia.IdCompetencia = %s
+									AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
+									AND competenciaCombateIndividual.IdCompetencia = competencia.IdCompetencia
+									AND a.DNI = c.DNI
+									AND c.Edad <= competenciaCombateIndividual.Edad
+									AND c.Edad > competenciaCombateIndividual.Edad-20
+									AND c.Peso <= competenciaCombateIndividual.Peso
+									AND c.Peso > competenciaCombateIndividual.Peso-10
+									AND a.Graduacion = competenciaIndividual.Graduacion
+									AND c.Sexo = competencia.Sexo;""",
+	'competidores': """SELECT DISTINCT c.DNI FROM Competidor c;""",
+	'equipos': """SELECT DISTINCT e.IdEquipo FROM Equipo e;""",
+	'CompetenciaCombateEquipos': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaCombateEquipos c;""",
+	'CompetenciaIndividual': """ SELECT DISTINCT c.IdCompetencia FROM CompetenciaIndividual c; """,
+	'CompetenciaSalto': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaSalto c;""",
+	'CompetenciaFormas': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaFormas c;""",
+	'CompetenciaCombateIndividual': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaCombateIndividual c;""",
+	'CompetenciaRotura': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaRotura c;""",
+	'competidor_coaches': """	SELECT DISTINCT c.DNI 
+								FROM Alumno a1, Alumno a2, Coach c
+								WHERE a2.DNI = c.DNI
+								AND a1.DNI = %s
+								AND a1.DNI <> a2.DNI
+								AND a1.IdEscuela = a2.IdEscuela
 								AND (	SELECT COUNT(*) 
-										FROM "InscriptoEn" ie
-										WHERE ie."DNICoach" = c."DNI") < 5; """,
-	'equipo_coaches': """ 	SELECT DISTINCT c."DNI"
-							FROM "Alumno" a, "Coach" c
-							WHERE a."DNI" = c."DNI"
-							AND a."IdEscuela" = (	SELECT a."IdEscuela"
-													FROM "Competidor" c, "Alumno" a
-													WHERE a."DNI" = c."DNI"
-													AND c."IdEquipo" = %s
+										FROM InscriptoEn ie
+										WHERE ie.DNICoach = c.DNI) < 5; """,
+	'equipo_coaches': """ 	SELECT DISTINCT c.DNI
+							FROM Alumno a, Coach c
+							WHERE a.DNI = c.DNI
+							AND a.IdEscuela = (	SELECT a.IdEscuela
+													FROM Competidor c, Alumno a
+													WHERE a.DNI = c.DNI
+													AND c.IdEquipo = %s
 													LIMIT 1 )
-							AND c."DNI" NOT IN (SELECT c."DNI"
-												FROM "Competidor" c
-												WHERE c."IdEquipo" = %s); """,
+							AND c.DNI NOT IN (SELECT c.DNI
+												FROM Competidor c
+												WHERE c.IdEquipo = %s); """,
 }
 
 def bernoulli(p): return True if random() <= p else False
@@ -395,7 +395,7 @@ def insertArbitro(conn, arbitro, tipo):
 # 3 = arbitro de recambio
 def loadArbitros(conn):
 	print "Cargando Árbitros..."
-	rings = doQuery(conn, """SELECT * FROM "Ring"; """,[])
+	rings = doQuery(conn, """SELECT * FROM Ring; """,[])
 
 	for r1 in tqdm(range(len(rings))):
 		graduation = randint(1,9)
