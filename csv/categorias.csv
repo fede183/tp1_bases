@@ -1,13 +1,12 @@
 Discriminante,Valor
-Sexo,Masculino
-Sexo,Femenino
+Sexo,M
+Sexo,F
 Graduacion,1
 Graduacion,2
 Graduacion,3
 Graduacion,4
 Graduacion,5
 Graduacion,6
-Graduacion,7
 Peso,50
 Peso,60
 Peso,70

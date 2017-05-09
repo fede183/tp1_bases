@@ -215,7 +215,7 @@ def loadMaestro(conn):
 		doInsert(conn, 'Maestro', [	NroDePlacaDeInstructor,
 									nombres['Nombre'][randint(1,len(nombres))],
 									apellidos['Apellido'][randint(1,len(apellidos))],
-									randint(1,9),
+									randint(1,7),
 									randint(1,len(paises)),
 									r+1 ])
 
