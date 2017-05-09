@@ -95,7 +95,7 @@ CREATE TEMP TABLE ResultadosCompetenciasCompetidor AS ResultadosCompetenciasComp
 
 #El Resultado
 select c.Tipo as Tipo, c.Sexo as Sexo, c.Edad as Edad, c.Peso as Peso, c.Graduacion as Graduacion
-, c.Resultado as Resultado from ((CompetenciaCombateEquipoDeCompetidor Union CompetenciaSaltoDeCompetidor Union CompetenciaFormasDeCompetidor Union CompetenciaCombateIndividualDeCompetidor Union CompetenciaRoturaDeCompetidor) left join ResultadosCompetenciasCompetidor) c
+, c.Resultado as Resultado from ((CompetenciaCombateEquipoDeCompetidor Union CompetenciaSaltoDeCompetidor Union CompetenciaFormasDeCompetidor Union CompetenciaCombateIndividualDeCompetidor Union CompetenciaRoturaDeCompetidor) left outer join ResultadosCompetenciasCompetidor) c
 
 # 5. El medallero por escuela.
 CREATE TEMP TABLE OrosPorEscuela AS SELECT E.IdEscuela, E.Nombre, COUNT(*) AS Oro FROM Escuela E, Alumno A, InscriptoEn IE, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND A.DNI = IE.DNI AND IE.IdCompetencia = CI.IdCompetencia AND CI.PrimerLugar = A.DNI GROUP BY E.IdEscuela;
