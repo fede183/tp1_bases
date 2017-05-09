@@ -12,5 +12,5 @@ $$ LANGUAGE plpgsql;
 
 SELECT truncate_tables('ivan');
 
-#DROP SCHEMA public CASCADE;
-#CREATE SCHEMA public;
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
