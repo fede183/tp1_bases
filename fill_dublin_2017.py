@@ -109,7 +109,7 @@ queries = {
 								AND c.Sexo = competencia.Sexo
 								AND c.Edad <= competenciaSalto.Edad
 								AND c.Edad > competenciaSalto.Edad-20;""",
-	'competidores_CompetenciaRotura': """	SELECT DISTINCT c.DNI 
+	'competidores_CompetenciaRotura': """	SELECT DISTINCT c.DNI, c.Sexo, a.Graduacion, competencia.Sexo, competencia.IdCompetencia
 								FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaRotura competenciaRotura 
 								WHERE competencia.IdCompetencia = %s
 								AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
@@ -146,6 +146,7 @@ queries = {
 	'CompetenciaSalto': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaSalto c;""",
 	'CompetenciaFormas': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaFormas c;""",
 	'CompetenciaCombateIndividual': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaCombateIndividual c;""",
+	'count_categorias_individuales': """ SELECT COUNT(DISTINCT c.idcompetencia) FROM competencia c WHERE c.tipocompetencia = 0 """,
 	'CompetenciaRotura': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaRotura c;""",
 	'competidor_coaches': """	SELECT DISTINCT c.DNI 
 								FROM Alumno a1, Alumno a2, Coach c
@@ -153,9 +154,9 @@ queries = {
 								AND a1.DNI = %s
 								AND a1.DNI <> a2.DNI
 								AND a1.IdEscuela = a2.IdEscuela
-								AND (	SELECT COUNT(*) 
+								AND (	SELECT COUNT(*)
 										FROM InscriptoEn ie
-										WHERE ie.DNICoach = c.DNI) < 5; """,
+										WHERE ie.DNICoach = c.DNI) < 5;""",
 	'equipo_coaches': """ 	SELECT DISTINCT c.DNI
 							FROM Alumno a, Coach c
 							WHERE a.DNI = c.DNI
@@ -248,7 +249,7 @@ def generateAlumno(IdEscuela=None):
 		'school': IdEscuela if IdEscuela != None else randint(1,len(escuelas)),
 		'age': age,
 		'weight': randint(40,70),
-		'graduation': randint(1,9),
+		'graduation': randint(1,7),
 		'NroCertificadoGraduacionITF': nsg_student,
 		'birthdate': datetime(2017-age,randint(1,12),randint(1,28)),
 	}
@@ -297,7 +298,7 @@ def loadCoaches(conn,overlap):
 	for r in tqdm(range(len(schools))):
 		idEscuela = schools['idescuela'][r]
 		school_students = doQuery(conn,queries['school_students'],[idEscuela])
-		school_coach_amount = floor(len(school_students) / 5)
+		school_coach_amount = len(school_students)
 		overlap_amount = int(floor(school_coach_amount * overlap))
 		no_overlap_amount = int(school_coach_amount) - overlap_amount
 		for c in tqdm(range(no_overlap_amount)):
@@ -453,7 +454,7 @@ def inserInscriptosEn(conn, competencia):
 
 	for c2 in tqdm(range(len(categorias))):
 		categoria = categorias['idcompetencia'][c2]
-		competidores = doQuery(conn, queries['competidores_'+competencia],[c2])
+		competidores = doQuery(conn, queries['competidores_'+competencia],[categoria])
 		for c1 in tqdm(range(len(competidores))): 
 			competidor = competidores['dni'][c1]
 			coaches = doQuery(conn, queries['competidor_coaches'], [competidor])
@@ -508,22 +509,22 @@ if __name__ == '__main__':
 	equipos = pd.read_csv('csv/equipos.csv', sep=',')
 	categorias = pd.read_csv('csv/categorias.csv', sep=',')
 
-	print "Creando los DNI ..."
-	dni = [10000000+i for i in range(int(FLAGS.amounts)*2+len(equipos)*12)]
-	print "Creando los números de certificados ITF ..."
-	nroCerITF = [i for i in range(int(FLAGS.amounts)*2)]
 	print "Creando los números de placas ..."
 	nroPlaca = [i for i in range(int(FLAGS.ringsamount)*30)]
+	print "Creando los DNI ..."
+	dni = [10000000+i for i in range(int(FLAGS.amounts)*4)]
+	print "Creando los números de certificados ITF ..."
+	nroCerITF = [i for i in range(int(FLAGS.amounts)*4)]
 	
 	myConnection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
 	loadPaises(myConnection)
 	loadEscuelas(myConnection)
 	loadMaestro(myConnection)
 	loadRings(myConnection, FLAGS.ringsamount)
+	loadCompetencias(myConnection)
 	loadEquipos(myConnection)
 	loadCompetidores(myConnection, int(FLAGS.amounts))
 	loadCoaches(myConnection, 0.5)
-	loadCompetencias(myConnection)
 	loadArbitros(myConnection)
 	loadInscriptosEn(myConnection)
 	loadEquipoInscriptoEn(myConnection)
