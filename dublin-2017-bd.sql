@@ -338,24 +338,11 @@ CREATE TRIGGER RingTieneAlMenos3ArbitrosRecambio BEFORE INSERT ON SeRealizaEn FO
 
 CREATE FUNCTION checkDistintosCompetidoresPrimerSegunTercerPuesto() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM Competidor c WHERE NEW.PrimerLugar = c.DNI AND NEW.SegundoLugar = c.DNI) > 0 THEN
+	IF (SELECT COUNT(1) FROM Competidor c WHERE (NEW.PrimerLugar = c.DNI AND NEW.SegundoLugar = c.DNI) OR (NEW.PrimerLugar = c.DNI AND NEW.TercerLugar = c.DNI) OR (NEW.SegundoLugar = c.DNI AND NEW.TercerLugar = c.DNI)) > 0 THEN
 		RAISE EXCEPTION 'Error: mismo competidor no puede obtener mas de un lugar.';
 	ELSE
 		RETURN NEW;
 	END IF;
-
-	IF (SELECT COUNT(1) FROM Competidor c WHERE NEW.PrimerLugar = c.DNI AND NEW.TercerLugar = c.DNI) > 0 THEN
-		RAISE EXCEPTION 'Error: mismo competidor no puede obtener mas de un lugar.';
-	ELSE
-		RETURN NEW;
-	END IF;
-
-	IF (SELECT COUNT(1) FROM Competidor c WHERE NEW.SegundoLugar = c.DNI AND NEW.TercerLugar = c.DNI) > 0 THEN
-		RAISE EXCEPTION 'Error: mismo competidor no puede obtener mas de un lugar.';
-	ELSE
-		RETURN NEW;
-	END IF;
-
     END;
 $emp_stamp$ LANGUAGE plpgsql;
 
@@ -365,24 +352,11 @@ CREATE TRIGGER DistintosCompetidoresPrimerSegunTercerPuesto BEFORE INSERT ON Com
 
 CREATE FUNCTION checkDistintosEquiposPrimerSegunTercerPuesto() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM Equipo e WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.SegundoLugar = e.IdEquipo) > 0 THEN
+	IF (SELECT COUNT(1) FROM Equipo e WHERE (NEW.PrimerLugar = e.IdEquipo AND NEW.SegundoLugar = e.IdEquipo) OR (NEW.PrimerLugar = e.IdEquipo AND NEW.TercerLugar = e.IdEquipo) OR (NEW.SegundoLugar = e.IdEquipo AND NEW.TercerLugar = e.IdEquipo)) > 0 THEN
 		RAISE EXCEPTION 'Error: mismo equipo no puede obtener mas de un lugar.';
 	ELSE
 		RETURN NEW;
 	END IF;
-
-	IF (SELECT COUNT(1) FROM Equipo e WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.TercerLugar = e.IdEquipo) > 0 THEN
-		RAISE EXCEPTION 'Error: mismo equipo no puede obtener mas de un lugar.';
-	ELSE
-		RETURN NEW;
-	END IF;
-
-	IF (SELECT COUNT(1) FROM Equipo e WHERE NEW.SegundoLugar = e.IdEquipo AND NEW.TercerLugar = e.IdEquipo) > 0 THEN
-		RAISE EXCEPTION 'Error: mismo equipo no puede obtener mas de un lugar.';
-	ELSE
-		RETURN NEW;
-	END IF;
-
     END;
 $emp_stamp$ LANGUAGE plpgsql;
 
@@ -395,21 +369,16 @@ CREATE FUNCTION checkPodioInscriptosCompetencia() RETURNS trigger AS $emp_stamp$
 	IF NEW.PrimerLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.PrimerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
 		RAISE EXCEPTION 'Error: primer lugar no esta inscripto en la competencia.';
 	ELSE
-		RETURN NEW;
+		IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.SegundoLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
+			RAISE EXCEPTION 'Error: segundo lugar no esta inscripto en la competencia.';
+		ELSE
+			IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.TercerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
+				RAISE EXCEPTION 'Error: tercer lugar no esta inscripto en la competencia.';
+			ELSE
+				RETURN NEW;
+			END IF;
+		END IF;
 	END IF;
-
-	IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.SegundoLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
-		RAISE EXCEPTION 'Error: segundo lugar no esta inscripto en la competencia.';
-	ELSE
-		RETURN NEW;
-	END IF;
-
-	IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.TercerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
-		RAISE EXCEPTION 'Error: tercer lugar no esta inscripto en la competencia.';
-	ELSE
-		RETURN NEW;
-	END IF;
-
     END;
 $emp_stamp$ LANGUAGE plpgsql;
 
@@ -422,21 +391,16 @@ CREATE FUNCTION checkPodioInscriptosEquipoCompetencia() RETURNS trigger AS $emp_
 	IF NEW.PrimerLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo) > 0 THEN
 		RAISE EXCEPTION 'Error: primer lugar no esta inscripto en la competencia.';
 	ELSE
-		RETURN NEW;
+		IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei WHERE NEW.SegundoLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo) > 0 THEN
+			RAISE EXCEPTION 'Error: segundo lugar no esta inscripto en la competencia.';
+		ELSE
+			IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei WHERE NEW.TercerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo) > 0 THEN
+				RAISE EXCEPTION 'Error: tercer lugar no esta inscripto en la competencia.';
+			ELSE
+				RETURN NEW;
+			END IF;
+		END IF;
 	END IF;
-
-	IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei WHERE NEW.SegundoLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo) > 0 THEN
-		RAISE EXCEPTION 'Error: segundo lugar no esta inscripto en la competencia.';
-	ELSE
-		RETURN NEW;
-	END IF;
-
-	IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei WHERE NEW.TercerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo) > 0 THEN
-		RAISE EXCEPTION 'Error: tercer lugar no esta inscripto en la competencia.';
-	ELSE
-		RETURN NEW;
-	END IF;
-
     END;
 $emp_stamp$ LANGUAGE plpgsql;
 
