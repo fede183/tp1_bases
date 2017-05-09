@@ -295,7 +295,7 @@ def loadCoaches(conn,overlap):
 	print "Cargando Coaches..."
 	schools = doQuery(conn,queries['schools'],[])
 	for r in tqdm(range(len(schools))):
-		idEscuela = schools['IdEscuela'][r]
+		idEscuela = schools['idescuela'][r]
 		school_students = doQuery(conn,queries['school_students'],[idEscuela])
 		school_coach_amount = floor(len(school_students) / 5)
 		overlap_amount = int(floor(school_coach_amount * overlap))
@@ -307,7 +307,7 @@ def loadCoaches(conn,overlap):
 		for c in tqdm(range(overlap_amount)):
 			alumno_coach = doQuery(conn, queries['school_student_not_coach'],[idEscuela])
 			if len(alumno_coach) > 0:
-				doInsert(conn, 'Coach', [alumno_coach['DNI'][0]])
+				doInsert(conn, 'Coach', [alumno_coach['dni'][0]])
 			else:
 				alumno = generateAlumno()
 				insertAlumno(conn, alumno)
@@ -403,26 +403,26 @@ def loadArbitros(conn):
 		# Presidente de mesa
 		arbitro = generate_arbitro(graduation)
 		insertArbitro(conn,arbitro,0)
-		doInsert(conn, 'PresidenteDeMesa', [arbitro['NroPlacaArbitro'], rings['IdRing'][r1]])
+		doInsert(conn, 'PresidenteDeMesa', [arbitro['NroPlacaArbitro'], rings['idring'][r1]])
 
 		# Arbitro central
 		arbitro = generate_arbitro(graduation)
 		insertArbitro(conn,arbitro,2)
-		doInsert(conn, 'ArbitroCentral', [arbitro['NroPlacaArbitro'], rings['IdRing'][r1]])
+		doInsert(conn, 'ArbitroCentral', [arbitro['NroPlacaArbitro'], rings['idring'][r1]])
 
 		# Jueces
 		jueces = randint(1,10)
 		for r2 in tqdm(range(jueces)):
 			arbitro = generate_arbitro(graduation)
 			insertArbitro(conn,arbitro,1)
-			doInsert(conn, 'Juez', [arbitro['NroPlacaArbitro'], rings['IdRing'][r1]])
+			doInsert(conn, 'Juez', [arbitro['NroPlacaArbitro'], rings['idring'][r1]])
 
 		# Arbitros de recambio
 		arbitros_recambio = randint(4,10)
 		for r2 in tqdm(range(arbitros_recambio)):
 			arbitro = generate_arbitro(graduation)
 			insertArbitro(conn,arbitro,3)
-			doInsert(conn, 'ArbitroDeRecambio', [arbitro['NroPlacaArbitro'], rings['IdRing'][r1]])
+			doInsert(conn, 'ArbitroDeRecambio', [arbitro['NroPlacaArbitro'], rings['idring'][r1]])
 
 def loadInscriptosEn(conn):
 	print "Cargando inscripciones competencia salto..."
@@ -440,25 +440,25 @@ def loadEquipoInscriptoEn(conn):
 	categorias = doQuery(conn, queries['CompetenciaCombateEquipos'])
 
 	for e in tqdm(range(len(equipos))):
-		equipo = equipos['IdEquipo'][e]
+		equipo = equipos['idequipo'][e]
 		for c in tqdm(range(len(categorias))):
-			categoria = categorias['IdCompetencia'][c]
+			categoria = categorias['idcompetencia'][c]
 			coaches = doQuery(conn, queries['equipo_coaches'], [equipo,equipo])
 			if len(coaches) > 0:
-				coach = coaches['DNI'][randint(len(coaches))]
+				coach = coaches['dni'][randint(len(coaches))]
 				doInsert(conn, 'EquipoInscriptoEn', [equipo, categoria, coach]);
 
 def inserInscriptosEn(conn, competencia):
 	categorias = doQuery(conn, queries[competencia])
 
 	for c2 in tqdm(range(len(categorias))):
-		categoria = categorias['IdCompetencia'][c2]
+		categoria = categorias['idcompetencia'][c2]
 		competidores = doQuery(conn, queries['competidores_'+competencia],[c2])
 		for c1 in tqdm(range(len(competidores))): 
-			competidor = competidores['DNI'][c1]
+			competidor = competidores['dni'][c1]
 			coaches = doQuery(conn, queries['competidor_coaches'], [competidor])
 			if len(coaches) > 0:
-				coach = coaches['DNI'][randint(len(coaches))]
+				coach = coaches['dni'][randint(len(coaches))]
 				doInsert(conn, 'InscriptoEn', [competidor, coach, categoria]);
 
 def loadPositions(conn):
@@ -466,12 +466,12 @@ def loadPositions(conn):
 
 	competencias = doQuery(conn, queries['CompetenciaIndividual'])
 	for c in tqdm(range(len(competencias))):
-		competencia = competencias['IdCompetencia'][c]
+		competencia = competencias['idcompetencia'][c]
 		inscriptos = doQuery(conn, queries['inscriptos'], [competencia])
 		ganadores = []
 		while len(inscriptos) > 0 and len(ganadores) < 3:
 			nro = randint(len(inscriptos))
-			ganadores.append(inscriptos['DNIAlumno'][nro])
+			ganadores.append(inscriptos['dnialumno'][nro])
 			inscriptos.drop(nro)
 		for i in tqdm(range(len(ganadores))):
 			doUpdate(conn, updates['CompetenciaIndividual'][i], [ganadores[i],competencia])
@@ -479,12 +479,12 @@ def loadPositions(conn):
 	print "Cargando 1ra 2da y 3ra posion de cada competencia combate en equipo"
 	competencias = doQuery(conn, queries['CompetenciaCombateEquipos'])
 	for c in tqdm(range(len(competencias))):
-		competencia = competencias['IdCompetencia'][c]
+		competencia = competencias['idcompetencia'][c]
 		inscriptos = doQuery(conn, queries['equiposInscriptos'], [competencia])
 		ganadores = []
 		while len(inscriptos) > 0 and len(ganadores) < 3:
 			nro = randint(len(inscriptos))
-			ganadores.append(inscriptos['IdEquipo'][nro])
+			ganadores.append(inscriptos['idequipo'][nro])
 			inscriptos.drop(nro)
 		for i in tqdm(range(len(ganadores))):
 			doUpdate(conn, updates['CompetenciaCombateEquipos'][i], [ganadores[i],competencia])
