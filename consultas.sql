@@ -98,15 +98,16 @@ select c.Tipo as Tipo, c.Sexo as Sexo, c.Edad as Edad, c.Peso as Peso, c.Graduac
 , c.Resultado as Resultado from ((CompetenciaCombateEquipoDeCompetidor Union CompetenciaSaltoDeCompetidor Union CompetenciaFormasDeCompetidor Union CompetenciaCombateIndividualDeCompetidor Union CompetenciaRoturaDeCompetidor) left outer join ResultadosCompetenciasCompetidor) c
 
 # 5. El medallero por escuela.
-CREATE TEMP TABLE OrosPorEscuela AS SELECT E.IdEscuela, E.Nombre, COUNT(*) AS Oro FROM Escuela E, Alumno A, InscriptoEn IE, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND A.DNI = IE.DNI AND IE.IdCompetencia = CI.IdCompetencia AND CI.PrimerLugar = A.DNI GROUP BY E.IdEscuela;
+SELECT E.Nombre, 
+(SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.PrimerLugar = A.DNI) + 
+(SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.PrimerLugar = A.DNI) as "Medallas de Oro",
+(SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.SegundoLugar = A.DNI) + 
+(SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.SegundoLugar = A.DNI) as "Medallas de Plata",
+(SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.TercerLugar = A.DNI) + 
+(SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.TercerLugar = A.DNI) as "Medallas de Bronce"
+ FROM Escuela E;
 
-CREATE TEMP TABLE PlatasPorEscuela AS SELECT E.IdEscuela, E.Nombre, COUNT(*) AS Plata FROM Escuela E, Alumno A, InscriptoEn IE, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND A.DNI = IE.DNI AND IE.IdCompetencia = CI.IdCompetencia AND CI.SegundoLugar = A.DNI GROUP BY E.IdEscuela;
 
-CREATE TEMP TABLE BroncePorEscuela AS SELECT E.IdEscuela, E.Nombre, COUNT(*) AS Bronce FROM Escuela E, Alumno A, InscriptoEn IE, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND A.DNI = IE.DNI AND IE.IdCompetencia = CI.IdCompetencia AND CI.TercerLugar = A.DNI GROUP BY E.IdEscuela;
-
-SELECT OPE.IdEscuela, OPE.Nombre, OPE.Oro, PPE.Plata, BPE.Bronce FROM OrosPorEscuela OPE, PlatasPorEscuela PPE, BroncePorEscuela BPE WHERE OPE.IdEscuela = PPE.IdEscuela AND PPE.IdEscuela = BPE.IdEscuela;
-
-SELECT IdEscuela, 
 # 6. El listado de los arbitros por pais.
 SELECT P.Nombre, A.Nombre, A.Apellido FROM Pais P, Arbitro A WHERE P.IdPais = A.IdPais ORDER BY P.Nombre;
 
