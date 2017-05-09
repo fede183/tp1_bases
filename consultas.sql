@@ -1,3 +1,4 @@
+# 2. Paises con más medallas
 #Pais con mas medallas de oro
 
 select pais.nombre from Pais pais where
@@ -45,6 +46,32 @@ select sum(select count(*) from CompetenciaIndividual ci where ci.TercerLugar = 
 ) from Escuela escuela where escuela.IdPais = paisSuma.IdPais
 )
 from Pais paisSuma)
+
+# 4. Dado un competidor(comp) la lista de categorias donde haya participado
+CREATE TEMP TABLE CompetenciasDeCompetidor AS select IdCompetencia as IdCompetencia from InscriptoEn IE where IE.DNIAlumno = comp.DNI Union select IdCompetencia from EquipoInscriptoEn EIE where EIE.IdEquipo = comp.IdEquipo
+
+CREATE TEMP TABLE CompetenciaCombateEquipoDeCompetidor AS select c.Tipo as Tipo, c.Sexo as Sexo, cce.Edad as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
+Competencia c, CompetenciaCombateEquipo cce where c.IdCompetencia = cce.IdCompetencia and 
+Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia)
+
+CREATE TEMP TABLE CompetenciaSaltoDeCompetidor AS select c.Tipo as Tipo, c.Sexo as Sexo, cs.Edad as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
+Competencia c, CompetenciaSalto cs, CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cs.IdCompetencia and 
+Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia)
+
+CREATE TEMP TABLE CompetenciaFormasDeCompetidor AS select c.Tipo as Tipo, c.Sexo as Sexo, cf.Edad as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
+Competencia c, CompetenciaFormas cf , CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cf.IdCompetencia and 
+Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia)
+
+CREATE TEMP TABLE CompetenciaCombateIndividualDeCompetidor AS select c.Tipo as Tipo, c.Sexo as Sexo, cci.Edad as Edad, cci.Peso as Peso, ci.Graduacion as Graduacion from 
+Competencia c, CompetenciaCombateIndividual cci , CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cci.IdCompetencia and 
+Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia)
+
+CREATE TEMP TABLE CompetenciaRoturaDeCompetidor AS select c.Tipo as Tipo, c.Sexo as Sexo, NULL as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
+Competencia c, CompetenciaRotura cr , CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cr.IdCompetencia and 
+Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia)
+
+#El Resultado
+CompetenciaCombateEquipoDeCompetidor Union CompetenciaSaltoDeCompetidor Union CompetenciaFormasDeCompetidor Union CompetenciaCombateIndividualDeCompetidor Union CompetenciaRoturaDeCompetidor
 
 # 5. El medallero por escuela.
 CREATE TEMP TABLE OrosPorEscuela AS SELECT E.IdEscuela, E.Nombre, COUNT(*) AS Oro FROM Escuela E, Alumno A, InscriptoEn IE, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND A.DNI = IE.DNI AND IE.IdCompetencia = CI.IdCompetencia AND CI.PrimerLugar = A.DNI GROUP BY E.IdEscuela;
