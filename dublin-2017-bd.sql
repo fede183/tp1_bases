@@ -91,6 +91,7 @@ CREATE TABLE Competidor (
 	DNI	INTEGER NOT NULL,
 	FechaDeNacimiento	DATE NOT NULL,
 	Sexo	TEXT NOT NULL,
+	Peso	INTEGER NOT NULL,
 	Edad	INTEGER NOT NULL,
 	Titular	INTEGER,
 	IdEquipo	INTEGER,
@@ -110,7 +111,7 @@ CREATE TABLE CompetenciaRotura (
 	FOREIGN KEY(IdCompetencia) REFERENCES Competencia(IdCompetencia)
 );
 CREATE TABLE CompetenciaIndividual (
-	IdCompetencia	INTEGER,
+	IdCompetencia	INTEGER NOT NULL,
 	PrimerLugar	INTEGER,
 	SegundoLugar	INTEGER,
 	TercerLugar	INTEGER,
