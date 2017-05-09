@@ -1,4 +1,4 @@
-BEGIN TRANSACTION;
+CREATE SCHEMA public;
 CREATE TABLE "Ring" (
 	"IdRing"	INTEGER PRIMARY KEY
 );
@@ -172,7 +172,7 @@ CREATE TABLE "SeRealizaEn" (
 
 CREATE FUNCTION checkCoachMaximo5Competidores() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "InscriptoEn" ie WHERE NEW.DNIAlumno <> ie.DNIAlumno AND NEW.DNICoach = ie.DNICoach) > 5 THEN
+	IF (SELECT COUNT(1) FROM "InscriptoEn" ie WHERE NEW."DNIAlumno" <> ie."DNIAlumno" AND NEW."DNICoach" = ie."DNICoach") > 5 THEN
 		RAISE EXCEPTION 'Error: coach acompania a mas de 5 alumnos.';
 	ELSE
 		RETURN NEW;
@@ -184,8 +184,8 @@ CREATE TRIGGER CoachMaximo5Competidores BEFORE INSERT ON "InscriptoEn" FOR EACH 
 
 CREATE FUNCTION checkCompetidoresEquipoMismaEscuela() RETURNS trigger AS $emp_stamp$
     BEGIN
-        IF NEW.IdEquipo <> NULL THEN
-		IF (SELECT COUNT(1) FROM "Competidor" c, "Alumno" a1, "Alumno" a2 WHERE NEW.IdEquipo = c.IdEquipo AND NEW.DNI = a1.DNI AND c.DNI = a2.DNI AND a1.IdEscuela <> a2.IdEscuela) > 0 THEN
+        IF NEW."IdEquipo" <> NULL THEN
+		IF (SELECT COUNT(1) FROM "Competidor" c, "Alumno" a1, "Alumno" a2 WHERE NEW."IdEquipo" = c."IdEquipo" AND NEW."DNI" = a1."DNI" AND c."DNI" = a2."DNI" AND a1."IdEscuela" <> a2."IdEscuela") > 0 THEN
 			RAISE EXCEPTION 'Error: los competidores de un equipo deben pertenecer todos a la misma escuela.';
 		ELSE
 			RETURN NEW;
@@ -201,7 +201,7 @@ CREATE TRIGGER CompetidoresEquipoMismaEscuela BEFORE INSERT OR UPDATE ON "Compet
 
 CREATE FUNCTION checkEquipoInscriptoTiene5Titulares() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Competidor" c, "Equipo" e WHERE e.IdEquipo = NEW.IdEquipo AND c.IdEquipo = NEW.IdEquipo AND c.Titular = TRUE) <> 5 THEN
+	IF (SELECT COUNT(1) FROM "Competidor" c, "Equipo" e WHERE e."IdEquipo" = NEW."IdEquipo" AND c."IdEquipo" = NEW."IdEquipo" AND c."Titular" = 1) <> 5 THEN
 		RAISE EXCEPTION 'Error: todos los equipos inscriptos deben tener exactamente cinco titulares.';
 	ELSE
 		RETURN NEW;
@@ -214,7 +214,7 @@ CREATE TRIGGER EquipoInscriptoTiene5Titulares BEFORE INSERT ON "EquipoInscriptoE
 
 CREATE FUNCTION checkEquipoInscriptoTiene3Suplentes() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Competidor" c, "Equipo" e WHERE e.IdEquipo = NEW.IdEquipo AND c.IdEquipo = NEW.IdEquipo AND c.Titular = FALSE) < 3 THEN
+	IF (SELECT COUNT(1) FROM "Competidor" c, "Equipo" e WHERE e."IdEquipo" = NEW."IdEquipo" AND c."IdEquipo" = NEW."IdEquipo" AND c."Titular" = 0) < 3 THEN
 		RAISE EXCEPTION 'Error: todos los equipos inscriptos deben tener al menos 3 suplentes.';
 	ELSE
 		RETURN NEW;
@@ -227,7 +227,7 @@ CREATE TRIGGER EquipoInscriptoTiene3Suplentes BEFORE INSERT ON "EquipoInscriptoE
 
 CREATE FUNCTION checkCompetidorSinEquipoNoEsTitularNiSup() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF NEW.idEquipo = NULL AND NEW.Titular <> NULL THEN
+	IF NEW."IdEquipo" = NULL AND NEW."Titular" <> NULL THEN
 		RAISE EXCEPTION 'Error: competidor no pertenece a un equipo y figura como titular.';
 	ELSE
 		RETURN NEW;
@@ -239,7 +239,7 @@ CREATE TRIGGER CompetidorSinEquipoNoEsTitularNiSup BEFORE INSERT OR UPDATE ON "C
 
 CREATE FUNCTION checkCompetidorMismaEscuelaCoach() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Alumno" a1, "Alumno" a2 WHERE NEW.DNIAlumno = a1.DNI AND NEW.DNICoach = a2.DNI AND a1.IdEscuela <> a2.IdEscuela) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Alumno" a1, "Alumno" a2 WHERE NEW."DNIAlumno" = a1."DNI" AND NEW."DNICoach" = a2."DNI" AND a1."IdEscuela" <> a2."IdEscuela") > 0 THEN
 		RAISE EXCEPTION 'Error: competidor y coach deben ser de la misma escuela.';
 	ELSE
 		RETURN NEW;
@@ -251,7 +251,7 @@ CREATE TRIGGER CompetidorMismaEscuelaCoach BEFORE INSERT OR UPDATE ON "Inscripto
 
 CREATE FUNCTION checkEquipoMismaEscuelaCoach() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Equipo" e, "Competidor" c, "Alumno" a1, "Alumno" a2 WHERE NEW.idEquipo = e.idEquipo AND c.idEquipo = e.idEquipo AND c.DNI = a1.DNI AND NEW.DNICoach = a2.DNI AND a1.IdEscuela <> a2.IdEscuela) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Equipo" e, "Competidor" c, "Alumno" a1, "Alumno" a2 WHERE NEW."IdEquipo" = e."IdEquipo" AND c."IdEquipo" = e."IdEquipo" AND c."DNI" = a1."DNI" AND NEW."DNICoach" = a2."DNI" AND a1."IdEscuela" <> a2."IdEscuela") > 0 THEN
 		RAISE EXCEPTION 'Error: miembros del equipo y coach deben ser de la misma escuela.';
 	ELSE
 		RETURN NEW;
@@ -263,7 +263,7 @@ CREATE TRIGGER EquipoMismaEscuelaCoach BEFORE INSERT OR UPDATE ON "EquipoInscrip
 
 CREATE FUNCTION checkCompetidorDistintoCoach() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF NEW.DNIAlumno = NEW.DNICoach THEN
+	IF NEW."DNIAlumno" = NEW."DNICoach" THEN
 		RAISE EXCEPTION 'Error: competidor y coach deben ser distintos.';
 	ELSE
 		RETURN NEW;
@@ -275,7 +275,7 @@ CREATE TRIGGER CompetidorDistintoCoach BEFORE INSERT OR UPDATE ON "InscriptoEn" 
 
 CREATE FUNCTION checkEquipoDistintoCoach() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Competidor" c WHERE NEW.idEquipo = c.idEquipo AND c.DNI = NEW.DNICoach) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Competidor" c WHERE NEW."IdEquipo" = c."IdEquipo" AND c."DNI" = NEW."DNICoach") > 0 THEN
 		RAISE EXCEPTION 'Error: coach no pueden acompanar a un equipo en el cual es miembro.';
 	ELSE
 		RETURN NEW;
@@ -287,7 +287,7 @@ CREATE TRIGGER EquipoDistintoCoach BEFORE INSERT OR UPDATE ON "EquipoInscriptoEn
 
 CREATE FUNCTION checkGraduacionArbitroYCompetencia() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Arbitro" a, "Ring" r, "SeRealizaEn" s, "Competencia" c, "CompetenciaIndividual" ci WHERE NEW.IdRing = r.IdRing AND r.IdRing = s.IdRing AND s.IdCompetencia = c.IdCompetencia AND c.IdCompetencia = ci.IdCompetencia AND NEW.NroPlacaArbitro = a.NroPlacaArbitro AND ci.Graduacion >= a.Graduacion) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Arbitro" a, "Ring" r, "SeRealizaEn" s, "Competencia" c, "CompetenciaIndividual" ci WHERE NEW."IdRing" = r."IdRing" AND r."IdRing" = s."IdRing" AND s."IdCompetencia" = c."IdCompetencia" AND c."IdCompetencia" = ci."IdCompetencia" AND NEW."NroPlacaArbitro" = a."NroPlacaArbitro" AND ci."Graduacion" >= a."Graduacion") > 0 THEN
 		RAISE EXCEPTION 'Error: graduacion arbitro menor al de la competencia.';
 	ELSE
 		RETURN NEW;
@@ -302,31 +302,31 @@ CREATE TRIGGER GraduacionArbitroRecambioYCompetencia BEFORE INSERT OR UPDATE ON 
 
 CREATE FUNCTION checkRingTieneAlMenos3ArbitrosRecambio() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "ArbitroDeRecambio" ar WHERE NEW.IdRing = ar.IdRing) < 3 THEN
-		RAISE EXCEPTION 'Error: todos los rings deben tener al menos 3 arbitros de recambio.';
+	IF (SELECT COUNT(1) FROM "ArbitroDeRecambio" ar WHERE NEW."IdRing" = ar."IdRing") < 3 THEN
+		RAISE EXCEPTION 'Error: todos los rings donde se realizan competencias deben tener al menos 3 arbitros de recambio.';
 	ELSE
 		RETURN NEW;
 	END IF;
     END;
 $emp_stamp$ LANGUAGE plpgsql;
 
-CREATE TRIGGER RingTieneAlMenos3ArbitrosRecambio BEFORE INSERT ON "Ring" FOR EACH ROW EXECUTE PROCEDURE checkRingTieneAlMenos3ArbitrosRecambio();
+CREATE TRIGGER RingTieneAlMenos3ArbitrosRecambio BEFORE INSERT ON "SeRealizaEn" FOR EACH ROW EXECUTE PROCEDURE checkRingTieneAlMenos3ArbitrosRecambio();
 
 CREATE FUNCTION checkDistintosCompetidoresPrimerSegunTercerPuesto() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Competidor" c WHERE NEW.PrimerLugar = c.DNI AND NEW.SegundoLugar = c.DNI) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Competidor" c WHERE NEW."PrimerLugar" = c."DNI" AND NEW."SegundoLugar" = c."DNI") > 0 THEN
 		RAISE EXCEPTION 'Error: mismo competidor no puede obtener mas de un lugar.';
 	ELSE
 		RETURN NEW;
 	END IF;
 
-	IF (SELECT COUNT(1) FROM "Competidor" c WHERE NEW.PrimerLugar = c.DNI AND NEW.TercerLugar = c.DNI) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Competidor" c WHERE NEW."PrimerLugar" = c."DNI" AND NEW."TercerLugar" = c."DNI") > 0 THEN
 		RAISE EXCEPTION 'Error: mismo competidor no puede obtener mas de un lugar.';
 	ELSE
 		RETURN NEW;
 	END IF;
 
-	IF (SELECT COUNT(1) FROM "Competidor" c WHERE NEW.SegundoLugar = c.DNI AND NEW.TercerLugar = c.DNI) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Competidor" c WHERE NEW."SegundoLugar" = c."DNI" AND NEW."TercerLugar" = c."DNI") > 0 THEN
 		RAISE EXCEPTION 'Error: mismo competidor no puede obtener mas de un lugar.';
 	ELSE
 		RETURN NEW;
@@ -339,19 +339,19 @@ CREATE TRIGGER DistintosCompetidoresPrimerSegunTercerPuesto BEFORE INSERT ON "Co
 
 CREATE FUNCTION checkDistintosEquiposPrimerSegunTercerPuesto() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Equipo" e WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.SegundoLugar = e.IdEquipo) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Equipo" e WHERE NEW."PrimerLugar" = e."IdEquipo" AND NEW."SegundoLugar" = e."IdEquipo") > 0 THEN
 		RAISE EXCEPTION 'Error: mismo equipo no puede obtener mas de un lugar.';
 	ELSE
 		RETURN NEW;
 	END IF;
 
-	IF (SELECT COUNT(1) FROM "Equipo" e WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.TercerLugar = e.IdEquipo) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Equipo" e WHERE NEW."PrimerLugar" = e."IdEquipo" AND NEW."TercerLugar" = e."IdEquipo") > 0 THEN
 		RAISE EXCEPTION 'Error: mismo equipo no puede obtener mas de un lugar.';
 	ELSE
 		RETURN NEW;
 	END IF;
 
-	IF (SELECT COUNT(1) FROM "Equipo" e WHERE NEW.SegundoLugar = e.IdEquipo AND NEW.TercerLugar = e.IdEquipo) > 0 THEN
+	IF (SELECT COUNT(1) FROM "Equipo" e WHERE NEW."SegundoLugar" = e."IdEquipo" AND NEW."TercerLugar" = e."IdEquipo") > 0 THEN
 		RAISE EXCEPTION 'Error: mismo equipo no puede obtener mas de un lugar.';
 	ELSE
 		RETURN NEW;
@@ -364,19 +364,19 @@ CREATE TRIGGER DistintosEquiposPrimerSegunTercerPuesto BEFORE INSERT ON "Compete
 
 CREATE FUNCTION checkPodioInscriptosCompetencia() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Competidor" c, InscriptoEn ie WHERE NEW.PrimerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
+	IF NEW."PrimerLugar" <> NULL AND (SELECT COUNT(1) FROM "Competidor" c, "InscriptoEn" ie WHERE NEW."PrimerLugar" = c."DNI" AND NEW."IdCompetencia" = ie."IdCompetencia" AND c."DNI" = ie."DNIAlumno") > 0 THEN
 		RAISE EXCEPTION 'Error: primer lugar no esta inscripto en la competencia.';
 	ELSE
 		RETURN NEW;
 	END IF;
 
-	IF (SELECT COUNT(1) FROM "Competidor" c, InscriptoEn ie WHERE NEW.SegundoLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
+	IF NEW."SegundoLugar" <> NULL AND (SELECT COUNT(1) FROM "Competidor" c, "InscriptoEn" ie WHERE NEW."SegundoLugar" = c."DNI" AND NEW."IdCompetencia" = ie."IdCompetencia" AND c."DNI" = ie."DNIAlumno") > 0 THEN
 		RAISE EXCEPTION 'Error: segundo lugar no esta inscripto en la competencia.';
 	ELSE
 		RETURN NEW;
 	END IF;
 
-	IF (SELECT COUNT(1) FROM "Competidor" c, InscriptoEn ie WHERE NEW.TercerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
+	IF NEW."TercerLugar" <> NULL AND (SELECT COUNT(1) FROM "Competidor" c, "InscriptoEn" ie WHERE NEW."TercerLugar" = c."DNI" AND NEW."IdCompetencia" = ie."IdCompetencia" AND c."DNI" = ie."DNIAlumno") > 0 THEN
 		RAISE EXCEPTION 'Error: tercer lugar no esta inscripto en la competencia.';
 	ELSE
 		RETURN NEW;
@@ -385,23 +385,23 @@ CREATE FUNCTION checkPodioInscriptosCompetencia() RETURNS trigger AS $emp_stamp$
     END;
 $emp_stamp$ LANGUAGE plpgsql;
 
-CREATE TRIGGER PodioInscriptosCompetencia BEFORE INSERT ON "CompetenciaIndividual" FOR EACH ROW EXECUTE PROCEDURE checkPodioInscriptosCompetencia();
+CREATE TRIGGER PodioInscriptosCompetencia BEFORE INSERT OR UPDATE ON "CompetenciaIndividual" FOR EACH ROW EXECUTE PROCEDURE checkPodioInscriptosCompetencia();
 
 CREATE FUNCTION checkPodioInscriptosEquipoCompetencia() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "Equipo" e, "EquipoInscriptoEn" ei WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdCompetencia = ei.IdCompetencia) > 0 THEN
+	IF NEW."PrimerLugar" <> NULL AND (SELECT COUNT(1) FROM "Equipo" e, "EquipoInscriptoEn" ei WHERE NEW."PrimerLugar" = e."IdEquipo" AND NEW."IdCompetencia" = ei."IdCompetencia" AND e."IdEquipo" = ei."IdEquipo") > 0 THEN
 		RAISE EXCEPTION 'Error: primer lugar no esta inscripto en la competencia.';
 	ELSE
 		RETURN NEW;
 	END IF;
 
-	IF (SELECT COUNT(1) FROM "Equipo" e, "EquipoInscriptoEn" ei WHERE NEW.SegundoLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdCompetencia = ei.IdCompetencia) > 0 THEN
+	IF NEW."SegundoLugar" <> NULL AND (SELECT COUNT(1) FROM "Equipo" e, "EquipoInscriptoEn" ei WHERE NEW."SegundoLugar" = e."IdEquipo" AND NEW."IdCompetencia" = ei."IdCompetencia" AND e."IdEquipo" = ei."IdEquipo") > 0 THEN
 		RAISE EXCEPTION 'Error: segundo lugar no esta inscripto en la competencia.';
 	ELSE
 		RETURN NEW;
 	END IF;
 
-	IF (SELECT COUNT(1) FROM "Equipo" e, "EquipoInscriptoEn" ei WHERE NEW.TercerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdCompetencia = ei.IdCompetencia) > 0 THEN
+	IF NEW."TercerLugar" <> NULL AND (SELECT COUNT(1) FROM "Equipo" e, "EquipoInscriptoEn" ei WHERE NEW."TercerLugar" = e."IdEquipo" AND NEW."IdCompetencia" = ei."IdCompetencia" AND e."IdEquipo" = ei."IdEquipo") > 0 THEN
 		RAISE EXCEPTION 'Error: tercer lugar no esta inscripto en la competencia.';
 	ELSE
 		RETURN NEW;
@@ -410,11 +410,11 @@ CREATE FUNCTION checkPodioInscriptosEquipoCompetencia() RETURNS trigger AS $emp_
     END;
 $emp_stamp$ LANGUAGE plpgsql;
 
-CREATE TRIGGER PodioInscriptosEquipoCompetencia BEFORE INSERT ON "CompetenciaCombateEquipos" FOR EACH ROW EXECUTE PROCEDURE checkPodioInscriptosEquipoCompetencia();
+CREATE TRIGGER PodioInscriptosEquipoCompetencia BEFORE INSERT OR UPDATE ON "CompetenciaCombateEquipos" FOR EACH ROW EXECUTE PROCEDURE checkPodioInscriptosEquipoCompetencia();
 
 CREATE FUNCTION checkUnaSolaCategoriaPorCompetidor() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (SELECT COUNT(1) FROM "CompetenciaIndividual" ci1, "CompetenciaIndividual" ci2, "InscriptoEn" ie WHERE NEW.DNIAlumno = ie.DNIAlumno AND NEW.IdCompetencia = ci1.IdCompetencia AND ie.IdCompetencia = ci2.IdCompetencia AND ci1.Modalidad = ci2.Modalidad) > 0 THEN
+	IF (SELECT COUNT(1) FROM "CompetenciaIndividual" ci1, "CompetenciaIndividual" ci2, "InscriptoEn" ie WHERE NEW."DNIAlumno" = ie."DNIAlumno" AND NEW."IdCompetencia" = ci1."IdCompetencia" AND ie."IdCompetencia" = ci2."IdCompetencia" AND ci1."Modalidad" = ci2."Modalidad") > 0 THEN
 		RAISE EXCEPTION 'Error: competidor ya inscripto en esa modalidad.';
 	ELSE
 		RETURN NEW;

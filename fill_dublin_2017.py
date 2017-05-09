@@ -152,7 +152,10 @@ queries = {
 								WHERE a2."DNI" = c."DNI"
 								AND a1."DNI" = %s
 								AND a1."DNI" <> a2."DNI"
-								AND a1."IdEscuela" = a2."IdEscuela"; """,
+								AND a1."IdEscuela" = a2."IdEscuela"
+								AND (	SELECT COUNT(*) 
+										FROM "InscriptoEn" ie
+										WHERE ie."DNICoach" = c."DNI") < 5; """,
 	'equipo_coaches': """ 	SELECT DISTINCT c."DNI"
 							FROM "Alumno" a, "Coach" c
 							WHERE a."DNI" = c."DNI"
@@ -228,7 +231,7 @@ def loadEquipos(conn):
 		doInsert(conn, 'Equipo', [r+1, equipos['Nombre'][r]])
 
 # puede que la edad y el mes no den exacto (paja)
-def generateAlumno():
+def generateAlumno(IdEscuela=None):
 	name_index = randint(len(nombres))
 	dni_index = randint(len(dni))
 	dni_student = dni[dni_index]
@@ -242,7 +245,7 @@ def generateAlumno():
 		'name': nombres['Nombre'][name_index],
 		'last_name': apellidos['Apellido'][randint(len(apellidos))],
 		'gender': nombres['Sexo'][name_index],
-		'school': randint(1,len(escuelas)),
+		'school': IdEscuela if IdEscuela != None else randint(1,len(escuelas)),
 		'age': age,
 		'weight': randint(40,70),
 		'graduation': randint(1,9),
@@ -259,29 +262,34 @@ def insertAlumno(conn, alumno):
 								alumno['NroCertificadoGraduacionITF'],
 								alumno['name'] + "-" + alumno['last_name'] + ".jpg"])
 
-def insertCompetidor(conn, alumno, compite_en_equipo):
+def insertCompetidor(conn, alumno, IdEquipo=None):
 	titular = 0
-	teamId = None
-	if compite_en_equipo:
-		available_teams = doQuery(conn, queries['available_teams'] ,[alumno['school']])
-		if len(available_teams) > 0:
-			teamId = available_teams['IdEquipo'][randint(len(available_teams))]
-			team_members = doQuery(conn, queries['team_members'],[teamId])
-			titular = 1 if len(team_members) < 5 else 0 # los primeros 5 son titulares
+	if not IdEquipo == None:
+		team_members = doQuery(conn, queries['team_members'],[IdEquipo])
+		titular = 1 if len(team_members) < 5 else 0 # los primeros 5 son titulares
 	doInsert(conn, 'Competidor', [	alumno['dni'],
 									alumno['birthdate'],
 									alumno['gender'],
 									alumno['weight'],
 									alumno['age'],
 									titular,
-									teamId])
+									IdEquipo])
 
-def loadCompetidores(conn, amount, team_members_p):
-	print("Cargando competidores...")
+def loadCompetidores(conn, amount):
+	print("Cargando competidores individuales...")
 	for r in tqdm(range(amount)):
 		alumno = generateAlumno()
 		insertAlumno(conn, alumno)
-		insertCompetidor(conn, alumno, bernoulli(team_members_p))
+		insertCompetidor(conn, alumno)
+
+	print("Cargando competidores para equipos...")
+	for r in tqdm(range(len(equipos))):
+		team_school = randint(len(escuelas))+1
+		team_members_amount = randint(8, 11)
+		for t in tqdm(range(team_members_amount)):
+			alumno = generateAlumno(team_school)
+			insertAlumno(conn, alumno)
+			insertCompetidor(conn, alumno, r+1)
 
 def loadCoaches(conn,overlap):
 	print "Cargando Coaches..."
@@ -410,7 +418,7 @@ def loadArbitros(conn):
 			doInsert(conn, 'Juez', [arbitro['NroPlacaArbitro'], rings['IdRing'][r1]])
 
 		# Arbitros de recambio
-		arbitros_recambio = randint(1,10)
+		arbitros_recambio = randint(4,10)
 		for r2 in tqdm(range(arbitros_recambio)):
 			arbitro = generate_arbitro(graduation)
 			insertArbitro(conn,arbitro,3)
@@ -418,9 +426,9 @@ def loadArbitros(conn):
 
 def loadInscriptosEn(conn):
 	print "Cargando inscripciones competencia salto..."
-	#inserInscriptosEn(conn, 'CompetenciaSalto')
+	inserInscriptosEn(conn, 'CompetenciaSalto')
 	print "Cargando inscripciones competencia formas..."
-	#inserInscriptosEn(conn, 'CompetenciaFormas')
+	inserInscriptosEn(conn, 'CompetenciaFormas')
 	print "Cargando inscripciones competencia combate individual..."
 	inserInscriptosEn(conn, 'CompetenciaCombateIndividual')
 	print "Cargando inscripciones competencia rotura..."
@@ -501,7 +509,7 @@ if __name__ == '__main__':
 	categorias = pd.read_csv('csv/categorias.csv', sep=',')
 
 	print "Creando los DNI ..."
-	dni = [10000000+i for i in range(int(FLAGS.amounts)*2)]
+	dni = [10000000+i for i in range(int(FLAGS.amounts)*2+len(equipos)*12)]
 	print "Creando los números de certificados ITF ..."
 	nroCerITF = [i for i in range(int(FLAGS.amounts)*2)]
 	print "Creando los números de placas ..."
@@ -513,7 +521,7 @@ if __name__ == '__main__':
 	loadMaestro(myConnection)
 	loadRings(myConnection, FLAGS.ringsamount)
 	loadEquipos(myConnection)
-	loadCompetidores(myConnection, int(FLAGS.amounts), 0.3)
+	loadCompetidores(myConnection, int(FLAGS.amounts))
 	loadCoaches(myConnection, 0.5)
 	loadCompetencias(myConnection)
 	loadArbitros(myConnection)
