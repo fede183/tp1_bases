@@ -6,11 +6,32 @@ from tqdm import tqdm
 from numpy.random import randint, random
 from math import floor
 from datetime import datetime
+import sys
+import gflags  # sudo pip install python-gflags
 
-hostname = 'localhost'
-username = 'postgres'
-password = 'basesdedatos'
-database = 'dublin'
+gflags.DEFINE_string('hostname', 'localhost',
+                     'database host conection',
+                     short_name='h')
+gflags.DEFINE_string('username', 'postgres',
+                     'postgresql username',
+                     short_name='u')
+gflags.DEFINE_string('password', 'basesdedatos',
+                     'password',
+                     short_name='p')
+gflags.DEFINE_string('database', 'dublin',
+                     'database name',
+                     short_name='d')
+
+gflags.DEFINE_string('amounts', 200,
+                     'amount of dni,nroPlaca,nroSertificadoITF (i.e. amount of people to register)',
+                     short_name='a')
+
+gflags.DEFINE_string('ringsamount', 20,
+                     'amount of rings (i.e. amount of people to register)',
+                     short_name='ra')
+
+
+FLAGS = gflags.FLAGS
 
 insertQueries = {
 	'Ring' : """INSERT INTO "Ring" ("IdRing") VALUES (%s);""",
@@ -26,7 +47,7 @@ insertQueries = {
 	'Juez' : """INSERT INTO "Juez" ("NroPlacaArbitro", "IdRing") VALUES (%s, %s);""",
 	'InscriptoEn' : """INSERT INTO "InscriptoEn" ("DNIAlumno", "DNICoach", "IdCompetencia") VALUES (%s, %s, %s);""",
 	'EquipoInscriptoEn' : """INSERT INTO "EquipoInscriptoEn" ("IdEquipo", "IdCompetencia", "DNICoach") VALUES (%s, %s, %s);""",
-	'Competidor' : """INSERT INTO "Competidor" ("DNI", "FechaDeNacimiento", "Sexo", "Edad", "Titular", "IdEquipo") VALUES (%s, %s, %s, %s, %s, %s);""",
+	'Competidor' : """INSERT INTO "Competidor" ("DNI", "FechaDeNacimiento", "Sexo", "Peso", "Edad", "Titular", "IdEquipo") VALUES (%s, %s, %s, %s, %s, %s, %s);""",
 	'CompetenciaSalto' : """INSERT INTO "CompetenciaSalto" ("IdCompetencia", "Edad") VALUES (%s, %s);""",
 	'CompetenciaRotura' : """INSERT INTO "CompetenciaRotura" ("IdCompetencia") VALUES (%s);""",
 	'CompetenciaIndividual' : """INSERT INTO "CompetenciaIndividual" ("IdCompetencia", "PrimerLugar", "SegundoLugar", "TercerLugar", "Graduacion", "Modalidad") VALUES (%s, %s, %s, %s, %s, %s);""",
@@ -51,40 +72,88 @@ updates['CompetenciaCombateEquipos'] = [
 ]
 
 queries = {
-	'available_teams': """	SELECT e."IdEquipo", e."NombreDeFantasia" 
-								FROM "Equipo" e 
-								WHERE NOT EXISTS (
-									SELECT * 
-									FROM "Competidor" c, "Alumno" a
-									WHERE a."DNI" = c."DNI" 
-									AND c."IdEquipo" = e."IdEquipo"
-									AND a."IdEscuela" <> %s);""",
-	'team_members': """ SELECT c
+	'available_teams': """	SELECT DISTINCT e."IdEquipo", e."NombreDeFantasia" 
+							FROM "Equipo" e 
+							WHERE NOT EXISTS (
+								SELECT * 
+								FROM "Competidor" c, "Alumno" a
+								WHERE a."DNI" = c."DNI" 
+								AND c."IdEquipo" = e."IdEquipo"
+								AND a."IdEscuela" <> %s);""",
+	'team_members': """ SELECT DISTINCT c
 						FROM "Competidor" c, "Equipo" e
 						WHERE e."IdEquipo" = %s
 						AND c."IdEquipo" = e."IdEquipo";""",
-	'school_students': """	SELECT c."DNI" 
+	'school_students': """	SELECT DISTINCT c."DNI" 
 							FROM "Competidor" c, "Alumno" a 
 							WHERE c."DNI" = a."DNI"
 							AND a."IdEscuela" = %s; """,
+	'school_student_not_coach': """	SELECT DISTINCT c."DNI" 
+									FROM "Competidor" c, "Alumno" a 
+									WHERE c."DNI" = a."DNI"
+									AND a."IdEscuela" = %s
+									AND NOT EXISTS (
+										SELECT * 
+										FROM "Coach" co 
+										WHERE co."DNI" = c."DNI"); """,
 	'inscriptos': """ SELECT i."DNIAlumno" FROM "InscriptoEn" i WHERE i."IdCompetencia" = %s; """,
 	'equiposInscriptos': """ SELECT i."IdEquipo" FROM "EquipoInscriptoEn" i WHERE i."IdCompetencia" = %s; """,
 	'schools': """ SELECT e."IdEscuela", e."Nombre", e."IdPais" FROM "Escuela" e; """,
-	'competidores': """SELECT c."DNI" FROM "Competidor" c;""",
-	'equipos': """SELECT e."IdEquipo" FROM "Equipo" e;""",
-	'CompetenciaCombateEquipos': """SELECT c."IdCompetencia" FROM "CompetenciaCombateEquipos" c;""",
-	'CompetenciaIndividual': """ SELECT c."IdCompetencia" FROM "CompetenciaIndividual" c; """,
-	'CompetenciaSalto': """SELECT c."IdCompetencia" FROM "CompetenciaSalto" c;""",
-	'CompetenciaFormas': """SELECT c."IdCompetencia" FROM "CompetenciaFormas" c;""",
-	'CompetenciaCombateIndividual': """SELECT c."IdCompetencia" FROM "CompetenciaCombateIndividual" c;""",
-	'CompetenciaRotura': """SELECT c."IdCompetencia" FROM "CompetenciaRotura" c;""",
-	'competidor_coaches': """	SELECT c."DNI" 
-							FROM "Alumno" a1, "Alumno" a2, "Coach" c
-							WHERE a2."DNI" = c."DNI"
-							AND a1."DNI" = %s
-							AND a1."DNI" <> a2."DNI"
-							AND a1."IdEscuela" = a2."IdEscuela"; """,
-	'equipo_coaches': """ 	SELECT c."DNI"
+	'competidores_CompetenciaSalto': """	SELECT DISTINCT c."DNI" 
+								FROM "Alumno" a, "Competidor" c, "Competencia" competencia, "CompetenciaIndividual" competenciaIndividual, "CompetenciaSalto" competenciaSalto 
+								WHERE competencia."IdCompetencia" = %s
+								AND competenciaIndividual."IdCompetencia" = competencia."IdCompetencia"
+								AND competenciaSalto."IdCompetencia" = competencia."IdCompetencia"
+								AND a."DNI" = c."DNI"
+								AND a."Graduacion" = competenciaIndividual."Graduacion"
+								AND c."Sexo" = competencia."Sexo"
+								AND c."Edad" <= competenciaSalto."Edad"
+								AND c."Edad" > competenciaSalto."Edad"-20;""",
+	'competidores_CompetenciaRotura': """	SELECT DISTINCT c."DNI" 
+								FROM "Alumno" a, "Competidor" c, "Competencia" competencia, "CompetenciaIndividual" competenciaIndividual, "CompetenciaRotura" competenciaRotura 
+								WHERE competencia."IdCompetencia" = %s
+								AND competenciaIndividual."IdCompetencia" = competencia."IdCompetencia"
+								AND competenciaRotura."IdCompetencia" = competencia."IdCompetencia"
+								AND a."DNI" = c."DNI"
+								AND a."Graduacion" = competenciaIndividual."Graduacion"
+								AND c."Sexo" = competencia."Sexo";""",
+	'competidores_CompetenciaFormas': """	SELECT DISTINCT c."DNI" 
+								FROM "Alumno" a, "Competidor" c, "Competencia" competencia, "CompetenciaIndividual" competenciaIndividual, "CompetenciaFormas" competenciaFormas 
+								WHERE competencia."IdCompetencia" = %s
+								AND competenciaIndividual."IdCompetencia" = competencia."IdCompetencia"
+								AND competenciaFormas."IdCompetencia" = competencia."IdCompetencia"
+								AND a."DNI" = c."DNI"
+								AND c."Edad" <= competenciaFormas."Edad"
+								AND c."Edad" > competenciaFormas."Edad"-20
+								AND a."Graduacion" = competenciaIndividual."Graduacion"
+								AND c."Sexo" = competencia."Sexo";""",
+	'competidores_CompetenciaCombateIndividual': """	SELECT DISTINCT c."DNI" 
+									FROM "Alumno" a, "Competidor" c, "Competencia" competencia, "CompetenciaIndividual" competenciaIndividual, "CompetenciaCombateIndividual" competenciaCombateIndividual 
+									WHERE competencia."IdCompetencia" = %s
+									AND competenciaIndividual."IdCompetencia" = competencia."IdCompetencia"
+									AND competenciaCombateIndividual."IdCompetencia" = competencia."IdCompetencia"
+									AND a."DNI" = c."DNI"
+									AND c."Edad" <= competenciaCombateIndividual."Edad"
+									AND c."Edad" > competenciaCombateIndividual."Edad"-20
+									AND c."Peso" <= competenciaCombateIndividual."Peso"
+									AND c."Peso" > competenciaCombateIndividual."Peso"-10
+									AND a."Graduacion" = competenciaIndividual."Graduacion"
+									AND c."Sexo" = competencia."Sexo";""",
+	'competidores': """SELECT DISTINCT c."DNI" FROM "Competidor" c;""",
+	'equipos': """SELECT DISTINCT e."IdEquipo" FROM "Equipo" e;""",
+	'CompetenciaCombateEquipos': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaCombateEquipos" c;""",
+	'CompetenciaIndividual': """ SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaIndividual" c; """,
+	'CompetenciaSalto': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaSalto" c;""",
+	'CompetenciaFormas': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaFormas" c;""",
+	'CompetenciaCombateIndividual': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaCombateIndividual" c;""",
+	'CompetenciaRotura': """SELECT DISTINCT c."IdCompetencia" FROM "CompetenciaRotura" c;""",
+	'competidor_coaches': """	SELECT DISTINCT c."DNI" 
+								FROM "Alumno" a1, "Alumno" a2, "Coach" c
+								WHERE a2."DNI" = c."DNI"
+								AND a1."DNI" = %s
+								AND a1."DNI" <> a2."DNI"
+								AND a1."IdEscuela" = a2."IdEscuela"; """,
+	'equipo_coaches': """ 	SELECT DISTINCT c."DNI"
 							FROM "Alumno" a, "Coach" c
 							WHERE a."DNI" = c."DNI"
 							AND a."IdEscuela" = (	SELECT a."IdEscuela"
@@ -96,23 +165,6 @@ queries = {
 												FROM "Competidor" c
 												WHERE c."IdEquipo" = %s); """,
 }
-
-paises = pd.read_csv('csv/paises.csv', sep=',')
-nombres = pd.read_csv('csv/nombres.csv', sep=',')
-apellidos = pd.read_csv('csv/apellidos.csv', sep=',')
-escuelas = pd.read_csv('csv/escuelas.csv', sep=',')
-equipos = pd.read_csv('csv/equipos.csv', sep=',')
-categorias = pd.read_csv('csv/categorias.csv', sep=',')
-
-dni = []
-while len(dni) < 1000:
-	dni = list(set(dni+[randint(10000000,90000000) for i in range(1000-len(dni))]))
-nroCerITF = []
-while len(nroCerITF) < 1000:
-	nroCerITF = list(set(nroCerITF+[randint(1,90000) for i in range(1000-len(nroCerITF))]))
-nroPlaca = []
-while len(nroPlaca) < 10000:
-	nroPlaca = list(set(nroPlaca+[randint(1,90000) for i in range(10000-len(nroPlaca))]))
 
 def bernoulli(p): return True if random() <= p else False
 
@@ -163,10 +215,10 @@ def loadMaestro(conn):
 									randint(1,len(paises)),
 									r+1 ])
 
-def loadRings(conn):
+def loadRings(conn, amount):
 	print("Cargando Rings...")
 	IdRing = 0
-	for r in tqdm(range(200)):
+	for r in tqdm(range(amount)):
 		IdRing += 1
 		doInsert(conn, 'Ring', [IdRing])
 
@@ -192,6 +244,7 @@ def generateAlumno():
 		'gender': nombres['Sexo'][name_index],
 		'school': randint(1,len(escuelas)),
 		'age': age,
+		'weight': randint(40,70),
 		'graduation': randint(1,9),
 		'NroCertificadoGraduacionITF': nsg_student,
 		'birthdate': datetime(2017-age,randint(1,12),randint(1,28)),
@@ -218,6 +271,7 @@ def insertCompetidor(conn, alumno, compite_en_equipo):
 	doInsert(conn, 'Competidor', [	alumno['dni'],
 									alumno['birthdate'],
 									alumno['gender'],
+									alumno['weight'],
 									alumno['age'],
 									titular,
 									teamId])
@@ -243,9 +297,13 @@ def loadCoaches(conn,overlap):
 			insertAlumno(conn, alumno)
 			doInsert(conn, 'Coach', [alumno['dni']])
 		for c in tqdm(range(overlap_amount)):
-			alumno_index = randint(len(school_students))
-			doInsert(conn, 'Coach', [school_students['DNI'][alumno_index]])
-			school_students.drop(alumno_index)
+			alumno_coach = doQuery(conn, queries['school_student_not_coach'],[idEscuela])
+			if len(alumno_coach) > 0:
+				doInsert(conn, 'Coach', [alumno_coach['DNI'][0]])
+			else:
+				alumno = generateAlumno()
+				insertAlumno(conn, alumno)
+				doInsert(conn, 'Coach', [alumno['dni']])
 
 # 0 comp individual 
 # 1 comp equipo
@@ -360,9 +418,9 @@ def loadArbitros(conn):
 
 def loadInscriptosEn(conn):
 	print "Cargando inscripciones competencia salto..."
-	inserInscriptosEn(conn, 'CompetenciaSalto')
+	#inserInscriptosEn(conn, 'CompetenciaSalto')
 	print "Cargando inscripciones competencia formas..."
-	inserInscriptosEn(conn, 'CompetenciaFormas')
+	#inserInscriptosEn(conn, 'CompetenciaFormas')
 	print "Cargando inscripciones competencia combate individual..."
 	inserInscriptosEn(conn, 'CompetenciaCombateIndividual')
 	print "Cargando inscripciones competencia rotura..."
@@ -383,13 +441,13 @@ def loadEquipoInscriptoEn(conn):
 				doInsert(conn, 'EquipoInscriptoEn', [equipo, categoria, coach]);
 
 def inserInscriptosEn(conn, competencia):
-	competidores = doQuery(conn, queries['competidores'])
 	categorias = doQuery(conn, queries[competencia])
 
-	for c1 in tqdm(range(len(competidores))): 
-		competidor = competidores['DNI'][c1]
-		for c2 in tqdm(range(len(categorias))):
-			categoria = categorias['IdCompetencia'][c2]
+	for c2 in tqdm(range(len(categorias))):
+		categoria = categorias['IdCompetencia'][c2]
+		competidores = doQuery(conn, queries['competidores_'+competencia],[c2])
+		for c1 in tqdm(range(len(competidores))): 
+			competidor = competidores['DNI'][c1]
 			coaches = doQuery(conn, queries['competidor_coaches'], [competidor])
 			if len(coaches) > 0:
 				coach = coaches['DNI'][randint(len(coaches))]
@@ -410,6 +468,7 @@ def loadPositions(conn):
 		for i in tqdm(range(len(ganadores))):
 			doUpdate(conn, updates['CompetenciaIndividual'][i], [ganadores[i],competencia])
 
+	print "Cargando 1ra 2da y 3ra posion de cada competencia combate en equipo"
 	competencias = doQuery(conn, queries['CompetenciaCombateEquipos'])
 	for c in tqdm(range(len(competencias))):
 		competencia = competencias['IdCompetencia'][c]
@@ -422,17 +481,44 @@ def loadPositions(conn):
 		for i in tqdm(range(len(ganadores))):
 			doUpdate(conn, updates['CompetenciaCombateEquipos'][i], [ganadores[i],competencia])
 
-myConnection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
-loadPaises(myConnection)
-loadEscuelas(myConnection)
-loadMaestro(myConnection)
-loadRings(myConnection)
-loadEquipos(myConnection)
-loadCompetidores(myConnection, 400, 0.3)
-loadCoaches(myConnection, 0.5)
-loadCompetencias(myConnection)
-loadArbitros(myConnection)
-loadInscriptosEn(myConnection)
-loadEquipoInscriptoEn(myConnection)
-loadPositions(myConnection)
-myConnection.close()
+if __name__ == '__main__':
+	try:
+		argv = FLAGS(sys.argv)
+	except gflags.FlagsError as e:
+		print '%s\\nUsage: %s ARGS\\n%s' % (e, sys.argv[0], FLAGS)
+		sys.exit(1)
+
+	hostname = FLAGS.hostname
+	username = FLAGS.username
+	password = FLAGS.password
+	database = FLAGS.database
+
+	paises = pd.read_csv('csv/paises.csv', sep=',')
+	nombres = pd.read_csv('csv/nombres.csv', sep=',')
+	apellidos = pd.read_csv('csv/apellidos.csv', sep=',')
+	escuelas = pd.read_csv('csv/escuelas.csv', sep=',')
+	equipos = pd.read_csv('csv/equipos.csv', sep=',')
+	categorias = pd.read_csv('csv/categorias.csv', sep=',')
+
+	print "Creando los DNI ..."
+	dni = [10000000+i for i in range(int(FLAGS.amounts)*2)]
+	print "Creando los números de certificados ITF ..."
+	nroCerITF = [i for i in range(int(FLAGS.amounts)*2)]
+	print "Creando los números de placas ..."
+	nroPlaca = [i for i in range(int(FLAGS.ringsamount)*30)]
+	
+	myConnection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
+	#loadPaises(myConnection)
+	#loadEscuelas(myConnection)
+	#loadMaestro(myConnection)
+	#loadRings(myConnection, FLAGS.ringsamount)
+	#loadEquipos(myConnection)
+	loadCompetidores(myConnection, int(FLAGS.amounts), 0.3)
+	loadCoaches(myConnection, 0.5)
+	loadCompetencias(myConnection)
+	loadArbitros(myConnection)
+	loadInscriptosEn(myConnection)
+	loadEquipoInscriptoEn(myConnection)
+	loadPositions(myConnection)
+
+	myConnection.close()

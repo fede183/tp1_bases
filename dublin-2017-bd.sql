@@ -91,6 +91,7 @@ CREATE TABLE "Competidor" (
 	"DNI"	INTEGER NOT NULL,
 	"FechaDeNacimiento"	TEXT NOT NULL,
 	"Sexo"	TEXT NOT NULL,
+	"Peso"	INTEGER NOT NULL,
 	"Edad"	INTEGER NOT NULL,
 	"Titular"	INTEGER,
 	"IdEquipo"	INTEGER,
