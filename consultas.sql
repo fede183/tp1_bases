@@ -21,52 +21,25 @@ DROP TABLE IF EXISTS PuntajeEscuela;
 DROP TABLE IF EXISTS PuntajePais;
 
 /* 3. Ranking Competidores */
-CREATE TEMP TABLE CantidadOrosCompetidor AS select comp.DNI as DNI, (select count(*) from CompetenciaIndividual CI where CI.PrimerLugar = comp.DNI) as CantidadMedallasOro from Competidor comp;
+SELECT E.Nombre as "Escuela", 
+((SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.PrimerLugar = A.DNI) + 
+(SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.PrimerLugar = A.DNI)) * 3 +
+((SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.SegundoLugar = A.DNI) + 
+(SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.SegundoLugar = A.DNI)) * 2 +
+((SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.TercerLugar = A.DNI) + 
+(SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.TercerLugar = A.DNI)) as "Puntos"
+ FROM Escuela E ORDER BY "Puntos" DESC;
 
-CREATE TEMP TABLE CantidadPlatasCompetidor AS select comp.DNI as DNI, (select count(*) from CompetenciaIndividual CI where CI.SegundoLugar = comp.DNI) as CantidadMedallasPlata from Competidor comp;
-
-CREATE TEMP TABLE CantidadBroncesCompetidor AS select comp.DNI as DNI, (select count(*) from CompetenciaIndividual CI where CI.TercerLugar = comp.DNI) as CantidadMedallasBronce from Competidor comp;
-
-CREATE TEMP TABLE CantidadOrosEquipo AS select equip.IdEquipo as IdEquipo, (select count(*) from CompetenciaCombateEquipos CCE where CCE.PrimerLugar = equip.IdEquipo) as CantidadMedallasOroEquipos from Equipo equip;
-
-CREATE TEMP TABLE CantidadPlatasEquipo AS select equip.IdEquipo as IdEquipo, (select count(*) from CompetenciaCombateEquipos CCE where CCE.SegundoLugar = equip.IdEquipo) as CantidadMedallasPlataEquipos from Equipo equip;
-
-CREATE TEMP TABLE CantidadBroncesEquipo AS select equip.IdEquipo as IdEquipo, (select count(*) from CompetenciaCombateEquipos CCE where CCE.TercerLugar = equip.IdEquipo) as CantidadMedallasBronceEquipos from Equipo equip;
-
-
-CREATE TEMP TABLE CantidadMedallasCompetidor AS select * from ((CantidadOrosCompetidor inner join CantidadPlatasCompetidor using(DNI)) inner join 
-CantidadBroncesCompetidor using(DNI));
-
- CREATE TEMP TABLE CantidadMedallasEquipo AS select * from ((CantidadOrosEquipo inner join CantidadPlatasEquipo using(IdEquipo)) inner join 
- CantidadBroncesEquipo using(IdEquipo));
-
-/*Puntaje por Competidor*/
-CREATE TEMP TABLE PuntajeCompetidor AS Select cmc.DNI as DNI, (3*cmc.CantidadMedallasOro + 2*cmc.CantidadMedallasPlata + cmc.CantidadMedallasBronce) 
-as Puntaje from CantidadMedallasCompetidor cmc;
-
-/*Puntaje por Equipo*/
-CREATE TEMP TABLE PuntajeEquipo AS (Select cme.IdEquipo as IdEquipo, (3*cme.CantidadMedallasOroEquipos + 2*cme.CantidadMedallasPlataEquipos + cme.CantidadMedallasBronceEquipos) 
-as Puntaje from CantidadMedallasEquipo cme);
-
-/*Puntaje por Escuela Competidor*/
-CREATE TEMP TABLE PuntajesEscuelaCompetidor AS (select e.IdEscuela as IdEscuela, sum(pc.Puntaje) as Puntaje from  PuntajeCompetidor pc, Escuela e where 
-Exists(select * from Alumno a where a.DNI = pc.DNI and a.IdEscuela = e.IdEscuela) Group by IdEscuela order by Puntaje );
-
-/*Puntaje por Escuela Equipo*/
-CREATE TEMP TABLE PuntajeEscuelaEquipo AS select e.IdEscuela as IdEscuela, sum(pe.Puntaje) as Puntaje from Escuela e, PuntajeEquipo pe where Exists(select * from Alumno a where a.IdEscuela 
-= e.IdEscuela And Exists(select * from Competidor comp where comp.DNI = a.DNI and comp.IdEquipo = pe.IdEquipo)) Group by IdEscuela order by Puntaje;
-
-/*Puntaje por Escuela*/
-CREATE TEMP TABLE PuntajeEscuela AS select pec.IdEscuela as IdEscuela, pec.Puntaje + pee.Puntaje as Puntaje from PuntajesEscuelaCompetidor pec, PuntajeEscuelaEquipo
- pee where pec.IdEscuela = pee.IdEscuela order by Puntaje;
-
- /*Puntaje por Pais*/ 
- CREATE TEMP TABLE PuntajePais AS select p.IdPais as IdPais, sum(pe.Puntaje) as Puntaje from Pais p, PuntajeEscuela pe where Exists(select * from Escuela es where 
- es.IdEscuela = pe.IdEscuela and es.IdPais = p.IdPais Group by es.IdEscuela) group by IdPais order by Puntaje;
-
-select * from PuntajeEscuela;
-
-select * from PuntajePais;
+SELECT P.Nombre as "País", 
+SUM(
+((SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.PrimerLugar = A.DNI) + 
+(SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.PrimerLugar = A.DNI)) * 3 +
+((SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.SegundoLugar = A.DNI) + 
+(SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.SegundoLugar = A.DNI)) * 2 +
+((SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.TercerLugar = A.DNI) + 
+(SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.TercerLugar = A.DNI))
+) as "Puntos"
+ FROM Pais P, Escuela E WHERE P.IdPais = E.IdPais GROUP BY P.IdPais ORDER BY "Puntos" DESC; 
 
  
 /* 4. Dado un competidor(DNIComp) la lista de categorias donde haya participado*/
@@ -133,7 +106,7 @@ ResultadosCompetenciasCompetidor.IdCompetencia) c;
 End 
 
 # 5. El medallero por escuela.
-SELECT E.Nombre, 
+SELECT E.Nombre as "Escuela", 
 (SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.PrimerLugar = A.DNI) + 
 (SELECT COUNT(DISTINCT CCE.IdCompetencia) FROM Alumno A, CompetenciaCombateEquipos CCE WHERE E.IdEscuela = A.IdEscuela AND CCE.PrimerLugar = A.DNI) as "Medallas de Oro",
 (SELECT COUNT(1) FROM Alumno A, CompetenciaIndividual CI WHERE E.IdEscuela = A.IdEscuela AND CI.SegundoLugar = A.DNI) + 
