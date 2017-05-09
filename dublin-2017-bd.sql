@@ -111,7 +111,7 @@ CREATE TABLE "CompetenciaRotura" (
 	FOREIGN KEY("IdCompetencia") REFERENCES "Competencia"("IdCompetencia")
 );
 CREATE TABLE "CompetenciaIndividual" (
-	"IdCompetencia"	INTEGER CompetenciaCombateEquipos NULL,
+	"IdCompetencia"	INTEGER NOT NULL,
 	"PrimerLugar"	INTEGER,
 	"SegundoLugar"	INTEGER,
 	"TercerLugar"	INTEGER,
