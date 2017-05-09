@@ -508,11 +508,11 @@ if __name__ == '__main__':
 	nroPlaca = [i for i in range(int(FLAGS.ringsamount)*30)]
 	
 	myConnection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database)
-	#loadPaises(myConnection)
-	#loadEscuelas(myConnection)
-	#loadMaestro(myConnection)
-	#loadRings(myConnection, FLAGS.ringsamount)
-	#loadEquipos(myConnection)
+	loadPaises(myConnection)
+	loadEscuelas(myConnection)
+	loadMaestro(myConnection)
+	loadRings(myConnection, FLAGS.ringsamount)
+	loadEquipos(myConnection)
 	loadCompetidores(myConnection, int(FLAGS.amounts), 0.3)
 	loadCoaches(myConnection, 0.5)
 	loadCompetencias(myConnection)
