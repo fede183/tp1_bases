@@ -230,12 +230,12 @@ $emp_stamp$ LANGUAGE plpgsql;
 
 CREATE TRIGGER EquipoInscriptoTiene3Suplentes BEFORE INSERT ON EquipoInscriptoEn FOR EACH ROW EXECUTE PROCEDURE checkEquipoInscriptoTiene3Suplentes();
 
-# Restricción 5: Todo competidor que no pertenece a un equipo, tiene el atributo “Titular” en NULL.
+# Restricción 5: Todo competidor pertenece a un equipo si y solo si el atributo “Titular” es distinto de NULL.
 
 CREATE FUNCTION checkCompetidorSinEquipoNoEsTitularNiSup() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF NEW.IdEquipo = NULL AND NEW.Titular <> NULL THEN
-		RAISE EXCEPTION 'Error: competidor no pertenece a un equipo y figura como titular.';
+	IF (NEW.IdEquipo = NULL AND NEW.Titular <> NULL) OR (NEW.IdEquipo <> NULL AND NEW.Titular = NULL) THEN
+		RAISE EXCEPTION 'Error: competidor pertenece a un equipo si y solo si el atributo Titular es distinto de NULL';
 	ELSE
 		RETURN NEW;
 	END IF;
