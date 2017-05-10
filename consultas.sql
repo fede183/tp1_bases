@@ -1,24 +1,48 @@
--- 2. Paises con más medallas
---Pais con mas medallas de oro
+/*2. Pais con mas medallas de oro */
 
---Pais con mas medallas de plata
+Select * from Pais p where (
+(select count(*) from Escuela es, Alumno a where es.IdPais = p.IdPais and es.IdEscuela = a.IdEscuela and Exists(select count(1) from Competidor com, 
+CompetenciaIndividual ci where com.DNI = a.DNI and ci.PrimerLugar = com.DNI)) + 
+(select count(*) from Escuela es, Equipo eq where es.IdPais = p.IdPais and exists(select count(1) from Alumno al, Competidor comEq where
+comEq.IdEquipo = eq.IdEquipo and al.DNI = comEQ.DNI and  es.IdEscuela = al.IdEscuela) and 
+Exists(select count(1) from CompetenciaCombateEquipos cce where cce.PrimerLugar = eq.IdEquipo))
 
---Pais con mas medallas de bronce
+)>= ALL  (select sum((select count(*) from Escuela es, Alumno a where es.IdPais = paisAux.IdPais and es.IdEscuela = a.IdEscuela and Exists(select count(1) from Competidor com, 
+CompetenciaIndividual ci where com.DNI = a.DNI and ci.PrimerLugar = com.DNI)) + 
+(select count(*) from Escuela es, Equipo eq where es.IdPais = paisAux.IdPais and exists(select count(1) from Alumno al, Competidor comEq where
+comEq.IdEquipo = eq.IdEquipo and al.DNI = comEQ.DNI and  es.IdEscuela = al.IdEscuela) and 
+Exists(select count(1) from CompetenciaCombateEquipos cce where cce.PrimerLugar = eq.IdEquipo))) from Pais paisAux);
 
-DROP TABLE IF EXISTS CantidadOrosCompetidor;
-DROP TABLE IF EXISTS CantidadPlatasCompetidor;
-DROP TABLE IF EXISTS CantidadBroncesCompetidor;
-DROP TABLE IF EXISTS CantidadOrosEquipo;
-DROP TABLE IF EXISTS CantidadPlatasEquipo;
-DROP TABLE IF EXISTS CantidadBroncesEquipo;
-DROP TABLE IF EXISTS CantidadMedallasCompetidor;
-DROP TABLE IF EXISTS CantidadMedallasEquipo;
-DROP TABLE IF EXISTS PuntajeCompetidor;
-DROP TABLE IF EXISTS PuntajeEquipo;
-DROP TABLE IF EXISTS PuntajesEscuelaCompetidor;
-DROP TABLE IF EXISTS PuntajeEscuelaEquipo;
-DROP TABLE IF EXISTS PuntajeEscuela;
-DROP TABLE IF EXISTS PuntajePais;
+/*Pais con mas medallas de plata */
+
+Select * from Pais p where (
+(select count(*) from Escuela es, Alumno a where es.IdPais = p.IdPais and es.IdEscuela = a.IdEscuela and Exists(select count(1) from Competidor com, 
+CompetenciaIndividual ci where com.DNI = a.DNI and ci.SegundoLugar = com.DNI)) + 
+(select count(*) from Escuela es, Equipo eq where es.IdPais = p.IdPais and exists(select count(1) from Alumno al, Competidor comEq where
+comEq.IdEquipo = eq.IdEquipo and al.DNI = comEQ.DNI and  es.IdEscuela = al.IdEscuela) and 
+Exists(select count(1) from CompetenciaCombateEquipos cce where cce.SegundoLugar = eq.IdEquipo))
+
+)>= ALL  (select sum((select count(*) from Escuela es, Alumno a where es.IdPais = paisAux.IdPais and es.IdEscuela = a.IdEscuela and Exists(select count(1) from Competidor com, 
+CompetenciaIndividual ci where com.DNI = a.DNI and ci.SegundoLugar = com.DNI)) + 
+(select count(*) from Escuela es, Equipo eq where es.IdPais = paisAux.IdPais and exists(select count(1) from Alumno al, Competidor comEq where
+comEq.IdEquipo = eq.IdEquipo and al.DNI = comEQ.DNI and  es.IdEscuela = al.IdEscuela) and 
+Exists(select count(1) from CompetenciaCombateEquipos cce where cce.SegundoLugar = eq.IdEquipo))) from Pais paisAux);
+
+/*Pais con mas medallas de bronce */
+
+Select * from Pais p where (
+(select count(*) from Escuela es, Alumno a where es.IdPais = p.IdPais and es.IdEscuela = a.IdEscuela and Exists(select count(1) from Competidor com, 
+CompetenciaIndividual ci where com.DNI = a.DNI and ci.TercerLugar = com.DNI)) + 
+(select count(*) from Escuela es, Equipo eq where es.IdPais = p.IdPais and exists(select count(1) from Alumno al, Competidor comEq where
+comEq.IdEquipo = eq.IdEquipo and al.DNI = comEQ.DNI and  es.IdEscuela = al.IdEscuela) and 
+Exists(select count(1) from CompetenciaCombateEquipos cce where cce.TercerLugar = eq.IdEquipo))
+
+)>= ALL  (select sum((select count(*) from Escuela es, Alumno a where es.IdPais = paisAux.IdPais and es.IdEscuela = a.IdEscuela and Exists(select count(1) from Competidor com, 
+CompetenciaIndividual ci where com.DNI = a.DNI and ci.TercerLugar = com.DNI)) + 
+(select count(*) from Escuela es, Equipo eq where es.IdPais = paisAux.IdPais and exists(select count(1) from Alumno al, Competidor comEq where
+comEq.IdEquipo = eq.IdEquipo and al.DNI = comEQ.DNI and  es.IdEscuela = al.IdEscuela) and 
+Exists(select count(1) from CompetenciaCombateEquipos cce where cce.TercerLugar = eq.IdEquipo))) from Pais paisAux);
+
 
 /* 3. Ranking Competidores */
 SELECT E.Nombre as "Escuela", 
