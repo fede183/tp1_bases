@@ -43,67 +43,98 @@ SUM(
 
  
 /* 4. Dado un competidor(DNIComp) la lista de categorias donde haya participado*/
-CREATE FUNCTION CategoriasEnLasQueParticipo(@DNIComp int) 
-RETURNS table
-AS BEGIN
-
-CREATE TEMP TABLE CompetenciasDeCompetidor AS select * from (select IE.IdCompetencia as IdCompetencia from InscriptoEn IE where IE.DNIAlumno = DNIComp) Union 
-(select EIE.IdCompetencia from EquipoInscriptoEn EIE where  exists(select * from Competidor comp where comp.DNI = @DNIComp EIE.IdEquipo = comp.IdEquipo));
-
-CREATE TEMP TABLE CompetenciaCombateEquipoDeCompetidor AS select c.IdCompetencia as IdCompetencia, c.Tipo as Tipo, c.Sexo as Sexo, cce.Edad as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
-Competencia c, CompetenciaCombateEquipo cce where c.IdCompetencia = cce.IdCompetencia and 
-Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
-
-CREATE TEMP TABLE CompetenciaSaltoDeCompetidor AS select c.Tipo as Tipo, c.Sexo as Sexo, cs.Edad as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
-Competencia c, CompetenciaSalto cs, CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cs.IdCompetencia and 
-Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
-
-CREATE TEMP TABLE CompetenciaFormasDeCompetidor AS select c.Tipo as Tipo, c.Sexo as Sexo, cf.Edad as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
-Competencia c, CompetenciaFormas cf , CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cf.IdCompetencia and 
-Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
-
-CREATE TEMP TABLE CompetenciaCombateIndividualDeCompetidor AS select c.Tipo as Tipo, c.Sexo as Sexo, cci.Edad as Edad, cci.Peso as Peso, ci.Graduacion as Graduacion from 
-Competencia c, CompetenciaCombateIndividual cci , CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cci.IdCompetencia and 
-Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
-
-CREATE TEMP TABLE CompetenciaRoturaDeCompetidor AS select c.Tipo as Tipo, c.Sexo as Sexo, NULL as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
-Competencia c, CompetenciaRotura cr , CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cr.IdCompetencia and 
-Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
+/* 4. Dado un competidor(DNIComp) la lista de categorias donde haya participado*/
 
 
+DROP FUNCTION IF EXISTS CategoriasEnLasQueParticipo(DNIComp int);
+CREATE FUNCTION CategoriasEnLasQueParticipo(DNIComp int) RETURNS void AS $emp_stamp$
+    BEGIN
 
-CREATE TEMP TABLE ResultadosCompetenciasCompetidorOroIndividual AS select cci.IdCompetencia as IdCompetencia, 'Oro' as Resultado from CompetenciaCombateIndividual cci where exists(select * from 
-cci.PrimerLugar = @DNIComp);
+	DROP TABLE IF EXISTS CompetenciasDeCompetidor;
+	DROP TABLE IF EXISTS CompetenciaCombateEquipoDeCompetidor;
+	DROP TABLE IF EXISTS CompetenciaSaltoDeCompetidor;
+	DROP TABLE IF EXISTS CompetenciaFormasDeCompetidor;
+	DROP TABLE IF EXISTS CompetenciaCombateIndividualDeCompetidor;
+	DROP TABLE IF EXISTS CompetenciaRoturaDeCompetidor;
+	DROP TABLE IF EXISTS ResultadosCompetenciasCompetidorOroIndividual;
+	DROP TABLE IF EXISTS ResultadosCompetenciasCompetidorPlataIndividual;
+	DROP TABLE IF EXISTS ResultadosCompetenciasCompetidorBronceIndividual;
+	DROP TABLE IF EXISTS ResultadosCompetenciasCompetidorOroEquipo;
+	DROP TABLE IF EXISTS ResultadosCompetenciasCompetidorPlataEquipo;
+	DROP TABLE IF EXISTS ResultadosCompetenciasCompetidorBronceEquipo;
+	DROP TABLE IF EXISTS ResultadosCompetenciasCompetidor;
+	DROP TABLE IF EXISTS CompetenciasCompetidor;
+    
+	CREATE TEMP TABLE CompetenciasDeCompetidor AS select * from ((select IE.IdCompetencia as IdCompetencia from InscriptoEn IE where IE.DNIAlumno = 
+	DNIComp) 
+	Union (select EIE.IdCompetencia from EquipoInscriptoEn EIE where exists(select * from Competidor comp where comp.DNI = DNIComp and EIE.IdEquipo = 
+	comp.IdEquipo))) a ;
 
-CREATE TEMP TABLE ResultadosCompetenciasCompetidorPlataIndividual AS select cci.IdCompetencia as IdCompetencia, 'Plata' as Resultado from CompetenciaCombateIndividual cci where exists(select * from 
-cci.SegundoLugar = @DNIComp);
+	CREATE TEMP TABLE CompetenciaCombateEquipoDeCompetidor AS select c.IdCompetencia as IdCompetencia, c.tipocompetencia as Tipo, c.Sexo as Sexo, cce.Edad as Edad, NULL as Peso, NULL as Graduacion from 
+	Competencia c, CompetenciaCombateEquipos cce where c.IdCompetencia = cce.IdCompetencia and 
+	Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
 
-CREATE TEMP TABLE ResultadosCompetenciasCompetidorBronceIndividual AS select cci.IdCompetencia as IdCompetencia, 'Bronce' as Resultado from CompetenciaCombateIndividual cci where exists(select * from 
-cci.TercerLugar = @DNIComp);
+	CREATE TEMP TABLE CompetenciaSaltoDeCompetidor AS select c.tipocompetencia as Tipo, c.Sexo as Sexo, cs.Edad as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
+	Competencia c, CompetenciaSalto cs, CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cs.IdCompetencia and 
+	Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
+
+	CREATE TEMP TABLE CompetenciaFormasDeCompetidor AS select c.tipocompetencia as Tipo, c.Sexo as Sexo, cf.Edad as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
+	Competencia c, CompetenciaFormas cf , CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cf.IdCompetencia and 
+	Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
+
+	CREATE TEMP TABLE CompetenciaCombateIndividualDeCompetidor AS select c.tipocompetencia as Tipo, c.Sexo as Sexo, cci.Edad as Edad, cci.Peso as Peso, ci.Graduacion as Graduacion from 
+	Competencia c, CompetenciaCombateIndividual cci , CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cci.IdCompetencia and 
+	Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
+
+	CREATE TEMP TABLE CompetenciaRoturaDeCompetidor AS select c.tipocompetencia as Tipo, c.Sexo as Sexo, NULL as Edad, NULL as Peso, ci.Graduacion as Graduacion from 
+	Competencia c, CompetenciaRotura cr , CompetenciaIndividual ci where ci.IdCompetencia = c.IdCompetencia and c.IdCompetencia = cr.IdCompetencia and 
+	Exists(select * from CompetenciasDeCompetidor cdc where cdc.IdCompetencia = c.IdCompetencia);
 
 
-CREATE TEMP TABLE ResultadosCompetenciasCompetidorOroEquipo AS select cce.IdCompetencia as IdCompetencia, 'Oro' as Resultado from CompetenciaCombateEquipo
- cce where exists(select * from Equipo eq, Competidor comp where cce.PrimerLugar = comp.IdEquipo and comp.DNI = @DNIComp);
 
-CREATE TEMP TABLE ResultadosCompetenciasCompetidorPlataEquipo AS select cce.IdCompetencia as IdCompetencia, 'Plata' as Resultado from 
-CompetenciaCombateEquipo cce where exists(select * from Equipo eq, Competidor comp where cce.PrimerLugar = comp.IdEquipo and comp.DNI = @DNIComp);
+	CREATE TEMP TABLE ResultadosCompetenciasCompetidorOroIndividual AS select cci.IdCompetencia as IdCompetencia, 'Oro' as Resultado from 
+	CompetenciaIndividual cci where cci.primerlugar = DNIComp;
 
-CREATE TEMP TABLE ResultadosCompetenciasCompetidorBronceEquipo AS select cce.IdCompetencia as IdCompetencia, 'Bronce' as Resultado from 
-CompetenciaCombateEquipo cce where exists(select * from Equipo eq, Competidor comp where cce.PrimerLugar = comp.IdEquipo and comp.DNI = @DNIComp);
+	CREATE TEMP TABLE ResultadosCompetenciasCompetidorPlataIndividual AS select cci.IdCompetencia as IdCompetencia, 'Plata' as Resultado 
+	from CompetenciaIndividual cci where cci.SegundoLugar = DNIComp;
 
-CREATE TEMP TABLE ResultadosCompetenciasCompetidor AS ResultadosCompetenciasCompetidorOroEquipo union ResultadosCompetenciasCompetidorPlataEquipo union 
-ResultadosCompetenciasCompetidorBronceEquipo union ResultadosCompetenciasCompetidorOroIndividual union ResultadosCompetenciasCompetidorPlataIndividual 
-union ResultadosCompetenciasCompetidorBronceIndividual;
+	CREATE TEMP TABLE ResultadosCompetenciasCompetidorBronceIndividual AS select cci.IdCompetencia as IdCompetencia, 'Bronce' as Resultado 
+	from CompetenciaIndividual cci where cci.TercerLugar = DNIComp;
 
-CREATE TEMP TABLE CompetenciasCompetidor AS CompetenciaCombateEquipoDeCompetidor Union CompetenciaSaltoDeCompetidor Union CompetenciaFormasDeCompetidor 
-Union CompetenciaCombateIndividualDeCompetidor Union CompetenciaRoturaDeCompetidor;
 
-/*El Resultado*/
-Return select c.Tipo as Tipo, c.Sexo as Sexo, c.Edad as Edad, c.Peso as Peso, c.Graduacion as Graduacion
-, c.Resultado as Resultado from (CompetenciasCompetidor left outer join ResultadosCompetenciasCompetidor ON CompetenciasCompetidor.IdCompetencia = 
-ResultadosCompetenciasCompetidor.IdCompetencia) c;
+	CREATE TEMP TABLE ResultadosCompetenciasCompetidorOroEquipo AS select cce.IdCompetencia as IdCompetencia, 'Oro' as Resultado from CompetenciaCombateEquipos
+	 cce where exists(select * from Equipo eq, Competidor comp where cce.PrimerLugar = comp.IdEquipo and comp.DNI = DNIComp);
 
-End 
+	CREATE TEMP TABLE ResultadosCompetenciasCompetidorPlataEquipo AS select cce.IdCompetencia as IdCompetencia, 'Plata' as Resultado from 
+	CompetenciaCombateEquipos cce where exists(select * from Equipo eq, Competidor comp where cce.PrimerLugar = comp.IdEquipo and comp.DNI = DNIComp);
+
+	CREATE TEMP TABLE ResultadosCompetenciasCompetidorBronceEquipo AS select cce.IdCompetencia as IdCompetencia, 'Bronce' as Resultado from 
+	CompetenciaCombateEquipos cce where exists(select * from Equipo eq, Competidor comp where cce.PrimerLugar = comp.IdEquipo and comp.DNI = DNIComp);
+
+	CREATE TEMP TABLE ResultadosCompetenciasCompetidor AS select * from ((select * from ResultadosCompetenciasCompetidorOroEquipo) union 
+	(select * from ResultadosCompetenciasCompetidorPlataEquipo) union (select * from ResultadosCompetenciasCompetidorBronceEquipo) union
+	(select * from ResultadosCompetenciasCompetidorOroIndividual) union (select * from ResultadosCompetenciasCompetidorPlataIndividual) union 
+	(select * from ResultadosCompetenciasCompetidorBronceIndividual)) a;
+
+	CREATE TEMP TABLE CompetenciasCompetidor AS (select * from ((select * from CompetenciaCombateEquipoDeCompetidor) union 
+	(select * from CompetenciaSaltoDeCompetidor) union 
+	(select * from CompetenciaFormasDeCompetidor) union 
+	(select * from CompetenciaCombateIndividualDeCompetidor) union 
+	(select * from CompetenciaRoturaDeCompetidor)) a);
+
+	/*El Resultado*/
+	
+	select c.tipocompetencia as Tipo, c.Sexo as Sexo, c.Edad as Edad, c.Peso as Peso, c.Graduacion as Graduacion
+	, c.Resultado as Resultado from (CompetenciasCompetidor left outer join ResultadosCompetenciasCompetidor ON CompetenciasCompetidor.IdCompetencia = 
+	ResultadosCompetenciasCompetidor.IdCompetencia) c;
+	select * from ResultadosCompetenciasCompetidorOroEquipo;
+   END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+end;
+
+/*Ejemplo de uso*/
+select CategoriasEnLasQueParticipo(1);
 
 # 5. El medallero por escuela.
 SELECT E.Nombre as "Escuela", 
