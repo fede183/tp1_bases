@@ -47,13 +47,13 @@ insertQueries = {
 	'Juez' : """INSERT INTO Juez (NroPlacaArbitro, IdRing) VALUES (%s, %s);""",
 	'InscriptoEn' : """INSERT INTO InscriptoEn (DNIAlumno, DNICoach, IdCompetencia) VALUES (%s, %s, %s);""",
 	'EquipoInscriptoEn' : """INSERT INTO EquipoInscriptoEn (IdEquipo, IdCompetencia, DNICoach) VALUES (%s, %s, %s);""",
-	'Competidor' : """INSERT INTO Competidor (DNI, FechaDeNacimiento, Sexo, Peso, Edad, Titular, IdEquipo) VALUES (%s, %s, %s, %s, %s, %s, %s);""",
+	'Competidor' : """INSERT INTO Competidor (DNI, FechaDeNacimiento, Sexo, Peso, Titular, IdEquipo) VALUES (%s, %s, %s, %s, %s, %s);""",
 	'CompetenciaSalto' : """INSERT INTO CompetenciaSalto (IdCompetencia, Edad) VALUES (%s, %s);""",
 	'CompetenciaRotura' : """INSERT INTO CompetenciaRotura (IdCompetencia) VALUES (%s);""",
 	'CompetenciaIndividual' : """INSERT INTO CompetenciaIndividual (IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar, Graduacion, Modalidad) VALUES (%s, %s, %s, %s, %s, %s);""",
 	'CompetenciaFormas' : """INSERT INTO CompetenciaFormas (IdCompetencia, Edad) VALUES (%s, %s);""",
 	'CompetenciaCombateIndividual' : """INSERT INTO CompetenciaCombateIndividual (IdCompetencia, Edad, Peso) VALUES (%s, %s, %s);""",
-	'CompetenciaCombateEquipos' : """INSERT INTO CompetenciaCombateEquipos (IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar, Edad) VALUES (%s, %s, %s, %s, %s);""",
+	'CompetenciaCombateEquipos' : """INSERT INTO CompetenciaCombateEquipos (IdCompetencia, PrimerLugar, SegundoLugar, TercerLugar) VALUES (%s, %s, %s, %s);""",
 	'ArbitroDeRecambio' : """INSERT INTO ArbitroDeRecambio (NroPlacaArbitro, IdRing) VALUES (%s, %s);""",
 	'ArbitroCentral' : """INSERT INTO ArbitroCentral (NroPlacaArbitro, IdRing) VALUES (%s, %s);""",
 	'SeRealizaEn' : """INSERT INTO SeRealizaEn (IdCompetencia, IdRing) VALUES (%s, %s);""",
@@ -99,55 +99,83 @@ queries = {
 	'inscriptos': """ SELECT i.DNIAlumno FROM InscriptoEn i WHERE i.IdCompetencia = %s; """,
 	'equiposInscriptos': """ SELECT i.IdEquipo FROM EquipoInscriptoEn i WHERE i.IdCompetencia = %s; """,
 	'schools': """ SELECT e.IdEscuela, e.Nombre, e.IdPais FROM Escuela e; """,
-	'competidores_CompetenciaSalto': """	SELECT DISTINCT c.DNI 
-								FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaSalto competenciaSalto 
-								WHERE competencia.IdCompetencia = %s
-								AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
-								AND competenciaSalto.IdCompetencia = competencia.IdCompetencia
-								AND a.DNI = c.DNI
-								AND a.Graduacion = competenciaIndividual.Graduacion
-								AND c.Sexo = competencia.Sexo
-								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) <= competenciaSalto.Edad
-								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) > competenciaSalto.Edad-20;""",
-	'competidores_CompetenciaRotura': """	SELECT DISTINCT c.DNI, c.Sexo, a.Graduacion, competencia.Sexo, competencia.IdCompetencia
-								FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaRotura competenciaRotura 
-								WHERE competencia.IdCompetencia = %s
-								AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
-								AND competenciaRotura.IdCompetencia = competencia.IdCompetencia
-								AND a.DNI = c.DNI
-								AND a.Graduacion = competenciaIndividual.Graduacion
-								AND c.Sexo = competencia.Sexo;""",
-	'competidores_CompetenciaFormas': """	SELECT DISTINCT c.DNI 
-								FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaFormas competenciaFormas 
-								WHERE competencia.IdCompetencia = %s
-								AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
-								AND competenciaFormas.IdCompetencia = competencia.IdCompetencia
-								AND a.DNI = c.DNI
-								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) <= competenciaFormas.Edad
-								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) > competenciaFormas.Edad-20
-								AND a.Graduacion = competenciaIndividual.Graduacion
-								AND c.Sexo = competencia.Sexo;""",
-	'competidores_CompetenciaCombateIndividual': """	SELECT DISTINCT c.DNI 
-									FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaCombateIndividual competenciaCombateIndividual 
-									WHERE competencia.IdCompetencia = %s
-									AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
-									AND competenciaCombateIndividual.IdCompetencia = competencia.IdCompetencia
-									AND a.DNI = c.DNI
-									AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) <= competenciaCombateIndividual.Edad
-									AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) > competenciaCombateIndividual.Edad-20
-									AND c.Peso <= competenciaCombateIndividual.Peso
-									AND c.Peso > competenciaCombateIndividual.Peso-10
-									AND a.Graduacion = competenciaIndividual.Graduacion
-									AND c.Sexo = competencia.Sexo;""",
+	'CompetenciaSalto': """	SELECT DISTINCT competenciaIndividual.IdCompetencia 
+							FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaSalto competenciaSalto 
+							WHERE competenciaIndividual.IdCompetencia = competencia.IdCompetencia
+							AND competenciaSalto.IdCompetencia = competencia.IdCompetencia
+							AND a.DNI = %s
+							AND a.DNI = c.DNI
+							AND a.Graduacion = competenciaIndividual.Graduacion
+							AND c.Sexo = competencia.Sexo
+							AND (
+								( 	
+									competenciaSalto.Edad = 'Juveniles'
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+								) OR ( 	
+									competenciaSalto.Edad = 'Adultos'
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+								) OR ( 	
+									competenciaSalto.Edad = 'Veteranos'
+								)
+							);""",
+	'CompetenciaRotura': """SELECT DISTINCT competenciaIndividual.IdCompetencia 
+							FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaRotura competenciaRotura 
+							WHERE competenciaIndividual.IdCompetencia = competencia.IdCompetencia
+							AND competenciaRotura.IdCompetencia = competencia.IdCompetencia
+							AND a.DNI = %s
+							AND a.DNI = c.DNI
+							AND a.Graduacion = competenciaIndividual.Graduacion
+							AND c.Sexo = competencia.Sexo;""",
+	'CompetenciaFormas': """SELECT DISTINCT competenciaIndividual.IdCompetencia 
+							FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaFormas competenciaformas 
+							WHERE competenciaIndividual.IdCompetencia = competencia.IdCompetencia
+							AND competenciaformas.IdCompetencia = competencia.IdCompetencia
+							AND a.DNI = %s
+							AND a.DNI = c.DNI
+							AND a.Graduacion = competenciaIndividual.Graduacion
+							AND c.Sexo = competencia.Sexo
+							AND (
+								( 	
+									competenciaformas.Edad = 'Juveniles'
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+								) OR ( 	
+									competenciaformas.Edad = 'Adultos'
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+								) OR ( 	
+									competenciaformas.Edad = 'Veteranos'
+								)
+							);""",
+	'CompetenciaCombateIndividual': """	SELECT DISTINCT competenciaIndividual.IdCompetencia 
+							FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaCombateIndividual competenciaCombateIndividual 
+							WHERE competenciaIndividual.IdCompetencia = competencia.IdCompetencia
+							AND competenciaCombateIndividual.IdCompetencia = competencia.IdCompetencia
+							AND a.DNI = %s
+							AND a.DNI = c.DNI
+							AND a.Graduacion = competenciaIndividual.Graduacion
+							AND c.Sexo = competencia.Sexo
+							AND c.peso < competenciaCombateIndividual.peso
+							AND c.peso >= competenciaCombateIndividual.peso-20
+							AND (
+								( 	
+									competenciaCombateIndividual.Edad = 'Juveniles'
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+								) OR ( 	
+									competenciaCombateIndividual.Edad = 'Adultos'
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+								) OR ( 	
+									competenciaCombateIndividual.Edad = 'Veteranos'
+								)
+							);""",
 	'competidores': """SELECT DISTINCT c.DNI FROM Competidor c;""",
 	'equipos': """SELECT DISTINCT e.IdEquipo FROM Equipo e;""",
 	'CompetenciaCombateEquipos': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaCombateEquipos c;""",
 	'CompetenciaIndividual': """ SELECT DISTINCT c.IdCompetencia FROM CompetenciaIndividual c; """,
-	'CompetenciaSalto': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaSalto c;""",
-	'CompetenciaFormas': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaFormas c;""",
-	'CompetenciaCombateIndividual': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaCombateIndividual c;""",
-	'count_categorias_individuales': """ SELECT COUNT(DISTINCT c.idcompetencia) FROM competencia c WHERE c.tipocompetencia = 0 """,
-	'CompetenciaRotura': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaRotura c;""",
 	'competidor_coaches': """	SELECT DISTINCT c.DNI 
 								FROM Alumno a1, Alumno a2, Coach c
 								WHERE a2.DNI = c.DNI
@@ -245,7 +273,6 @@ def generateAlumno(IdEscuela=None, Sexo=None):
 	nsg_index = randint(len(nroCerITF))
 	nsg_student = nroCerITF[nsg_index]
 	nroCerITF.pop(nsg_index)
-	age = randint(15,75)
 
 	try:
 		return {
@@ -254,14 +281,13 @@ def generateAlumno(IdEscuela=None, Sexo=None):
 			'last_name': apellidos['Apellido'][randint(len(apellidos))],
 			'gender': nombres_filtrados['Sexo'][name_index],
 			'school': IdEscuela if IdEscuela != None else randint(1,len(escuelas)),
-			'age': age,
 			'weight': randint(40,70),
 			'graduation': randint(1,7),
 			'NroCertificadoGraduacionITF': nsg_student,
-			'birthdate': datetime(2017-age,randint(1,12),randint(1,28)),
+			'birthdate': datetime(2017-randint(14,60),randint(1,12),randint(1,28)),
 		}
 	except:
-		print nombres_filtrados.head(402)
+		print nombres_filtrados
 		print nombres_filtrados['Nombre']
 		raise Exception('fallo')
 
@@ -283,7 +309,6 @@ def insertCompetidor(conn, alumno, IdEquipo=None):
 									alumno['birthdate'],
 									alumno['gender'],
 									alumno['weight'],
-									alumno['age'],
 									titular,
 									IdEquipo])
 
@@ -345,12 +370,10 @@ def loadCompetencias(conn):
 	print "Competencias por equipos"
 	for r1 in tqdm(range(len(categorias_sexo))):
 		sexo = categorias_sexo['Valor'][r1]
-		for r3 in tqdm(range(len(categorias_edad))):
-			edad = categorias_edad['Valor'][r3]
-			# combate equipo
-			IdCompetencia += 1
-			doInsert(conn, 'Competencia', [IdCompetencia, sexo, 1])
-			doInsert(conn, 'CompetenciaCombateEquipos', [IdCompetencia, None, None, None, edad])
+		# combate equipo
+		IdCompetencia += 1
+		doInsert(conn, 'Competencia', [IdCompetencia, sexo, 1])
+		doInsert(conn, 'CompetenciaCombateEquipos', [IdCompetencia, None, None, None])
 	
 	print "Competencias individuales"
 	for r1 in tqdm(range(len(categorias_sexo))):
@@ -462,17 +485,17 @@ def loadEquipoInscriptoEn(conn):
 				doInsert(conn, 'EquipoInscriptoEn', [equipo, categoria, coach]);
 
 def inserInscriptosEn(conn, competencia):
-	categorias = doQuery(conn, queries[competencia])
+	
+	competidores = doQuery(conn, queries['competidores'],[])
 
-	for c2 in tqdm(range(len(categorias))):
-		categoria = categorias['idcompetencia'][c2]
-		competidores = doQuery(conn, queries['competidores_'+competencia],[categoria])
-		for c1 in tqdm(range(len(competidores))): 
-			competidor = competidores['dni'][c1]
-			coaches = doQuery(conn, queries['competidor_coaches'], [competidor])
-			if len(coaches) > 0:
-				coach = coaches['dni'][randint(len(coaches))]
-				doInsert(conn, 'InscriptoEn', [competidor, coach, categoria]);
+	for c1 in tqdm(range(len(competidores))):
+		competidor = competidores['dni'][c1]
+		coaches = doQuery(conn, queries['competidor_coaches'], [competidor])
+		categorias = doQuery(conn, queries[competencia],[competidor])
+		if len(categorias) > 0 and len(coaches) > 0:
+			categoria = categorias['idcompetencia'][randint(len(categorias))]
+			coach = coaches['dni'][randint(len(coaches))]
+			doInsert(conn, 'InscriptoEn', [competidor, coach, categoria]);
 
 def loadPositions(conn):
 	print "Cargando 1ra 2da y 3ra posion de cada competencia individual"
@@ -541,5 +564,4 @@ if __name__ == '__main__':
 	loadInscriptosEn(myConnection)
 	loadEquipoInscriptoEn(myConnection)
 	loadPositions(myConnection)
-
 	myConnection.close()
