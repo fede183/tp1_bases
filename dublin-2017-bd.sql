@@ -1,4 +1,6 @@
 BEGIN TRANSACTION;
+DROP SCHEMA "public" CASCADE;
+CREATE SCHEMA "public";
 CREATE TABLE Ring (
 	IdRing	INTEGER PRIMARY KEY
 );
@@ -9,7 +11,7 @@ CREATE TABLE Pais (
 CREATE TABLE Competencia (
 	IdCompetencia	INTEGER PRIMARY KEY,
 	Sexo	TEXT NOT NULL CHECK (Sexo = 'M' OR Sexo = 'F'),
-	TipoCompetencia	INTEGER NOT NULL
+	TipoCompetencia	INTEGER NOT NULL CHECK (TipoCompetencia = 0 OR TipoCompetencia = 1)
 );
 CREATE TABLE Escuela (
 	IdEscuela	INTEGER PRIMARY KEY,
@@ -89,7 +91,7 @@ CREATE TABLE EquipoInscriptoEn (
 );
 CREATE TABLE Competidor (
 	DNI	INTEGER NOT NULL,
-	FechaDeNacimiento	DATE NOT NULL,
+	FechaDeNacimiento	DATE NOT NULL CHECK (FechaDeNacimiento < NOW()),
 	Sexo	TEXT NOT NULL CHECK (Sexo = 'M' OR Sexo = 'F'),
 	Peso	INTEGER NOT NULL CHECK (Peso >= 1 AND Peso <= 300),
 	Titular	INTEGER CHECK (Titular = 0 OR Titular = 1),
@@ -115,7 +117,7 @@ CREATE TABLE CompetenciaIndividual (
 	SegundoLugar	INTEGER,
 	TercerLugar	INTEGER,
 	Graduacion	INTEGER NOT NULL CHECK (Graduacion >= 1 AND Graduacion <= 6),
-	Modalidad	INTEGER NOT NULL,
+	Modalidad	INTEGER NOT NULL CHECK (Modalidad >= 0 AND Modalidad <= 3),
 	PRIMARY KEY(IdCompetencia),
 	FOREIGN KEY(IdCompetencia) REFERENCES Competencia(IdCompetencia),
 	FOREIGN KEY(PrimerLugar) REFERENCES Alumno(DNI),

@@ -2,32 +2,55 @@ En esta sección están especificadas todas las restricciones adicionales del ME
 
 \subsection{Restricciónes provenientes del MER:}
 \begin{enumerate}
-    \item Toda escuela envia un coach por cada cinco competidores inscriptos.
+    \item Todo coach no puede acompañar más de 5 inscripciones de competidores individuales.
     \item Todos los competidores que pertenecen a un mismo equipo son inscriptos por la misma escuela.
-    \item Todo equipo está formado por cinco competidores con el atributo ``Titular'' en true que pertenecen al equipo.
-    \item Todo equipo esta formado por al menos tres competidores con el atributo ``Titular'' en false que pertenecen al equipo.
-    \item Todo competidor pertenece a un equipo si y solo si el atributo ``Titular'' es distinto de NULL.
+    \item Todos los competidores que pertenecen a un mismo equipo son del mismo sexo.
+    \item Todo equipo está formado por cinco competidores con el atributo \textit{``Titular''} en 1 indicando que son titulares del equipo.
+    \item Todo equipo esta formado por al menos tres competidores con el atributo \textit{``Titular''} en 0 indicando que son suplentes en el equipo.
+    \item Todo competidor pertenece a un equipo (IdEquipo distinto de \textit{NULL}) si y solo si el atributo \textit{``Titular''} es distinto de \textit{NULL}.
     \item Todo competidor inscripto en una competencia es acompañado por un coach enviado por la misma escuela que lo inscribió.
     \item Todo equipo inscripto en una competencia es acompañado por un coach enviado por la misma escuela que inscribió a los competidores del equipo.
-    \item Ningún competidor puede ser acompañado en una competencia por un coach que tenga el mismo ``DNI''.
-    \item Ningún equipo puede ser acompañado en una competencia por un coach que tenga el mismo ``DNI'' que alguno de sus integrantes.
-    \item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde el juez de mesa sea un árbitro con graduación mayor a la de la competencia.
-    \item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde todos los jueces sean árbitros con graduación mayor a la de la competencia.
-    \item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde el árbitro central sea un árbitro con graduación mayor a la de la competencia.
-    \item Todas las competencias que tengan atributo ``Graduación'' deben ser realizadas en rings donde todos los árbitros de recambio sean árbitros con graduación mayor a la de la competencia.
+    \item Ningún competidor puede ser acompañado en una competencia por un coach que tenga el mismo \textit{``DNI''} que el.
+    \item Ningún equipo puede ser acompañado en una competencia por un coach que tenga el mismo '\textit{``DNI''} que alguno de sus integrantes.
+    \item Todas las competencias que tengan atributo \textit{``Graduacion''} deben ser realizadas en rings donde el juez de mesa sea un árbitro con graduación mayor a la de la competencia.
+    \item Todas las competencias que tengan atributo \textit{``Graduacion''} deben ser realizadas en rings donde todos los jueces sean árbitros con graduación mayor a la de la competencia.
+    \item Todas las competencias que tengan atributo \textit{``Graduacion''} deben ser realizadas en rings donde el árbitro central sea un árbitro con graduación mayor a la de la competencia.
+    \item Todas las competencias que tengan atributo \textit{``Graduacion''} deben ser realizadas en rings donde todos los árbitros de recambio sean árbitros con graduación mayor a la de la competencia.
     \item Todo ring tiene al menos tres arbitros de recambio.
-    \item Ningún competidor puede estar en más de una de las siguientes relaciones: ``Primer lugar en'', ``Segundo lugar en'', ``Tercer lugar en'' en una misma competencia.
-    \item Ningún equipo puede estar en más de una de las siguientes relaciones: ``Primer lugar en'', ``Segundo lugar en'', ``Tercer lugar en'' en una misma competencia.
-    \item Todo competidor que está en alguna de las relaciones ``Primer lugar en'', ``Segundo lugar en'' o ``Tercer lugar en'' debe estar inscripto y habilitado en dicha competencia a la cual pertenece la relación.
-    \item Todo Equipo que está en alguna de las relaciones ``Primer lugar en'', ``Segundo lugar en'' o ``Tercer lugar en'' debe estar inscripto y habilitado en dicha competencia a la cual pertenece la relación.
-    \item Cada competidor puede estar inscripto en una sola categoria.
-    \item El atributo edad en las competencias, que lo tengan, debe ser ``Juveniles" o ``Adultos" o ``Veteranos".
-    \item Todo competidor inscripto en una competencia, la cual tenga como valor del atributo edad ``Juveniles", deberá tener
-    una edad entre 14 y 17. Si la competencia tiene como valor ``Adultos" entonces tendrá que estar entre
-    18 y 35. Por ultimo si la competencia tiene como valor ``Veteranos" entonces la edad deberá ser mayor a 35.
-    \item Todo competidor inscripto en una competencia que tenga el atributo peso, deberá tener
-    un peso menor o igual al de la competencia.
+    \item Ningún competidor puede estar en más de una de las siguientes relaciones: \textit{``PrimerLugarEn''}, \textit{``SegundoLugarEn''}, \textit{``TercerLugarEn''} para una misma competencia.
+    \item Ningún equipo puede estar en más de una de las siguientes relaciones: \textit{``PrimerLugarEn''}, \textit{``SegundoLugarEn''}, \textit{``TercerLugarEn''} para una misma competencia.
+    \item Todo competidor que está en alguna de las relaciones \textit{``PrimerLugarEn''}, \textit{``SegundoLugarEn''} o \textit{``TercerLugarEn''} debe estar inscripto y habilitado en dicha competencia a la cual pertenece la relación.
+    \item Todo Equipo que está en alguna de las relaciones \textit{``PrimerLugarEn''}, \textit{``SegundoLugarEn''} o \textit{``TercerLugarEn''} debe estar inscripto y habilitado en dicha competencia a la cual pertenece la relación.
+    \item Cada competidor puede estar inscripto en una sola categoria de cada modalidad.
+    %\item Todo competidor inscripto en una competencia, la cual tenga como valor del atributo edad \textit{``Juveniles"}, deberá tener una edad entre 14 y 17. Si la competencia tiene como valor \textit{``Adultos"} entonces tendrá que estar entre 18 y 35. Por ultimo si la competencia tiene como valor \textit{``Veteranos"} entonces la edad deberá ser mayor a 35.
+    %\item Todo competidor inscripto en una competencia que tenga el atributo peso, deberá tener un peso menor o igual al de la competencia.
 \end{enumerate}
+
+\subsection{Restricciones de las representaciones de los datos:}
+\begin{itemize}
+    \item El atributo \textit{``Graduacion''} de la entidad Alumno tiene que contener valores entre 1 y 6 inclusive.
+    \item El atributo \textit{``Sexo''} de cualquier entidad siempre toma valores ``F'' para ``Femenino'' o ``M'' para ``Masculino''.
+    \item El atributo \textit{``Edad''} de cualquier entidad siempre toma valores ``Juveniles'', ``Adultos'' o ``Veteranos''.
+    \item El atributo \textit{``Peso''} de cualquier entidad siempre toma valores entre 1 y 300.
+    \item El atributo \textit{``FechaDeNacimiento''} de la entidad competidor debe contener una fecha valida (previa al día actual).
+    \item El atributo \textit{``Titular''} de la entidad competidor siempre toma alguno de los siguientes valores:
+    \begin{itemize}
+        \item 0: Suplente 
+        \item 1: Titular.
+    \end{itemize} 
+    \item El atributo \textit{``TipoCompetencia''} de la entidad competencia siempre toma alguno de los siguientes valores: 
+    \begin{itemize}
+        \item 0: CompetenciaIndividual
+        \item 1: CompetenciaCombateEquipos
+    \end{itemize} 
+    \item El atributo \textit{``Modalidad''} de la entidad CombateIndividual siempre toma alguno de los siguientes valores:
+    \begin{itemize}
+        \item 0: CompetenciaSalto
+        \item 1: CompetenciaFormas
+        \item 2: CompetenciaCombateIndividual
+        \item 3: CompetenciaRotura
+    \end{itemize}
+\end{itemize}
 
 \subsection{Restricciones provenientes del MR:}
 \begin{itemize}

@@ -8,7 +8,7 @@ CREATE TABLE Pais (
 CREATE TABLE Competencia (
 	IdCompetencia	INTEGER PRIMARY KEY,
 	Sexo	TEXT NOT NULL,
-	TipoCompetencia	INTEGER NOT NULL
+	TipoCompetencia	INTEGER NOT NULL CHECK (TipoCompetencia = 0 OR TipoCompetencia = 1)
 );
 CREATE TABLE Escuela (
 	IdEscuela	INTEGER PRIMARY KEY,
@@ -91,7 +91,6 @@ CREATE TABLE Competidor (
 	FechaDeNacimiento	DATE NOT NULL,
 	Sexo	TEXT NOT NULL,
 	Peso	INTEGER NOT NULL,
-	Edad	INTEGER NOT NULL,
 	Titular	INTEGER,
 	IdEquipo	INTEGER,
 	PRIMARY KEY(DNI),
@@ -115,7 +114,7 @@ CREATE TABLE CompetenciaIndividual (
 	SegundoLugar	INTEGER,
 	TercerLugar	INTEGER,
 	Graduacion	INTEGER NOT NULL,
-	Modalidad	INTEGER NOT NULL,
+	Modalidad	INTEGER NOT NULL CHECK (Modalidad >= 0 AND Modalidad <= 3),
 	PRIMARY KEY(IdCompetencia),
 	FOREIGN KEY(IdCompetencia) REFERENCES Competencia(IdCompetencia),
 	FOREIGN KEY(PrimerLugar) REFERENCES Alumno(DNI),
@@ -140,7 +139,6 @@ CREATE TABLE CompetenciaCombateEquipos (
 	PrimerLugar	INTEGER,
 	SegundoLugar	INTEGER,
 	TercerLugar	INTEGER,
-	Edad	INTEGER NOT NULL,
 	PRIMARY KEY(IdCompetencia),
 	FOREIGN KEY(IdCompetencia) REFERENCES Competencia(IdCompetencia),
 	FOREIGN KEY(PrimerLugar) REFERENCES Equipo(IdEquipo),
