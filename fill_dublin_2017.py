@@ -22,7 +22,7 @@ gflags.DEFINE_string('database', 'dublin',
                      'database name',
                      short_name='d')
 
-gflags.DEFINE_string('amounts', 200,
+gflags.DEFINE_string('amounts', 1000,
                      'amount of dni,nroPlaca,nroSertificadoITF (i.e. amount of people to register)',
                      short_name='a')
 
@@ -175,10 +175,17 @@ queries = {
 									AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
 								)
 							);""",
+	'CompetenciaCombateEquipos_cat': """SELECT DISTINCT c1.IdCompetencia 
+									FROM competencia c1, CompetenciaCombateEquipos c2
+									WHERE c1.IdCompetencia = c2.IdCompetencia 
+									AND NOT EXISTS (
+										SELECT * FROM Competidor c
+										WHERE c.IdEquipo = %s
+										AND c.sexo <> c1.sexo);""",
 	'competidores': """SELECT DISTINCT c.DNI FROM Competidor c;""",
 	'equipos': """SELECT DISTINCT e.IdEquipo FROM Equipo e;""",
-	'CompetenciaCombateEquipos': """SELECT DISTINCT c.IdCompetencia FROM CompetenciaCombateEquipos c;""",
 	'CompetenciaIndividual': """ SELECT DISTINCT c.IdCompetencia FROM CompetenciaIndividual c; """,
+	'CompetenciaCombateEquipos': """ SELECT DISTINCT c.IdCompetencia FROM CompetenciaCombateEquipos c; """,
 	'competidor_coaches': """	SELECT DISTINCT c.DNI 
 								FROM Alumno a1, Alumno a2, Coach c
 								WHERE a2.DNI = c.DNI
@@ -476,12 +483,12 @@ def loadInscriptosEn(conn):
 def loadEquipoInscriptoEn(conn):
 	print "Cargando inscripciones combate por equipo"
 	equipos = doQuery(conn, queries['equipos'])
-	categorias = doQuery(conn, queries['CompetenciaCombateEquipos'])
 
 	for e in tqdm(range(len(equipos))):
 		equipo = equipos['idequipo'][e]
-		for c in tqdm(range(len(categorias))):
-			categoria = categorias['idcompetencia'][c]
+		categorias = doQuery(conn, queries['CompetenciaCombateEquipos_cat'],[equipo])
+		if len(categorias) > 0:
+			categoria = categorias['idcompetencia'][0]
 			coaches = doQuery(conn, queries['equipo_coaches'], [equipo,equipo])
 			if len(coaches) > 0:
 				coach = coaches['dni'][randint(len(coaches))]
