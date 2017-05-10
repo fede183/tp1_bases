@@ -92,7 +92,6 @@ CREATE TABLE Competidor (
 	FechaDeNacimiento	DATE NOT NULL,
 	Sexo	TEXT NOT NULL CHECK (Sexo = 'M' OR Sexo = 'F'),
 	Peso	INTEGER NOT NULL CHECK (Peso >= 1 AND Peso <= 300),
-	Edad	INTEGER NOT NULL CHECK (Edad >= 1 AND Edad <= 150),
 	Titular	INTEGER CHECK (Titular = 0 OR Titular = 1),
 	IdEquipo	INTEGER,
 	PRIMARY KEY(DNI),

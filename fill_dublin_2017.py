@@ -107,8 +107,8 @@ queries = {
 								AND a.DNI = c.DNI
 								AND a.Graduacion = competenciaIndividual.Graduacion
 								AND c.Sexo = competencia.Sexo
-								AND c.Edad <= competenciaSalto.Edad
-								AND c.Edad > competenciaSalto.Edad-20;""",
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) <= competenciaSalto.Edad
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) > competenciaSalto.Edad-20;""",
 	'competidores_CompetenciaRotura': """	SELECT DISTINCT c.DNI, c.Sexo, a.Graduacion, competencia.Sexo, competencia.IdCompetencia
 								FROM Alumno a, Competidor c, Competencia competencia, CompetenciaIndividual competenciaIndividual, CompetenciaRotura competenciaRotura 
 								WHERE competencia.IdCompetencia = %s
@@ -123,8 +123,8 @@ queries = {
 								AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
 								AND competenciaFormas.IdCompetencia = competencia.IdCompetencia
 								AND a.DNI = c.DNI
-								AND c.Edad <= competenciaFormas.Edad
-								AND c.Edad > competenciaFormas.Edad-20
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) <= competenciaFormas.Edad
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) > competenciaFormas.Edad-20
 								AND a.Graduacion = competenciaIndividual.Graduacion
 								AND c.Sexo = competencia.Sexo;""",
 	'competidores_CompetenciaCombateIndividual': """	SELECT DISTINCT c.DNI 
@@ -133,8 +133,8 @@ queries = {
 									AND competenciaIndividual.IdCompetencia = competencia.IdCompetencia
 									AND competenciaCombateIndividual.IdCompetencia = competencia.IdCompetencia
 									AND a.DNI = c.DNI
-									AND c.Edad <= competenciaCombateIndividual.Edad
-									AND c.Edad > competenciaCombateIndividual.Edad-20
+									AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) <= competenciaCombateIndividual.Edad
+									AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) > competenciaCombateIndividual.Edad-20
 									AND c.Peso <= competenciaCombateIndividual.Peso
 									AND c.Peso > competenciaCombateIndividual.Peso-10
 									AND a.Graduacion = competenciaIndividual.Graduacion
@@ -232,8 +232,13 @@ def loadEquipos(conn):
 		doInsert(conn, 'Equipo', [r+1, equipos['Nombre'][r]])
 
 # puede que la edad y el mes no den exacto (paja)
-def generateAlumno(IdEscuela=None):
-	name_index = randint(len(nombres))
+def generateAlumno(IdEscuela=None, Sexo=None):
+	
+	nombres_filtrados = nombres.copy()
+	if Sexo != None:
+		nombres_filtrados = nombres_filtrados[nombres_filtrados['Sexo'] == 'F'].reset_index()
+
+	name_index = randint(len(nombres_filtrados))
 	dni_index = randint(len(dni))
 	dni_student = dni[dni_index]
 	dni.pop(dni_index)
@@ -241,18 +246,24 @@ def generateAlumno(IdEscuela=None):
 	nsg_student = nroCerITF[nsg_index]
 	nroCerITF.pop(nsg_index)
 	age = randint(15,75)
-	return {
-		'dni': dni_student,
-		'name': nombres['Nombre'][name_index],
-		'last_name': apellidos['Apellido'][randint(len(apellidos))],
-		'gender': nombres['Sexo'][name_index],
-		'school': IdEscuela if IdEscuela != None else randint(1,len(escuelas)),
-		'age': age,
-		'weight': randint(40,70),
-		'graduation': randint(1,7),
-		'NroCertificadoGraduacionITF': nsg_student,
-		'birthdate': datetime(2017-age,randint(1,12),randint(1,28)),
-	}
+
+	try:
+		return {
+			'dni': dni_student,
+			'name': nombres_filtrados['Nombre'][name_index],
+			'last_name': apellidos['Apellido'][randint(len(apellidos))],
+			'gender': nombres_filtrados['Sexo'][name_index],
+			'school': IdEscuela if IdEscuela != None else randint(1,len(escuelas)),
+			'age': age,
+			'weight': randint(40,70),
+			'graduation': randint(1,7),
+			'NroCertificadoGraduacionITF': nsg_student,
+			'birthdate': datetime(2017-age,randint(1,12),randint(1,28)),
+		}
+	except:
+		print nombres_filtrados.head(402)
+		print nombres_filtrados['Nombre']
+		raise Exception('fallo')
 
 def insertAlumno(conn, alumno):
 	doInsert(conn, 'Alumno', [	alumno['dni'],
@@ -287,8 +298,9 @@ def loadCompetidores(conn, amount):
 	for r in tqdm(range(len(equipos))):
 		team_school = randint(len(escuelas))+1
 		team_members_amount = randint(8, 11)
+		gender = 'F' if randint(2) == 1 else 'M'
 		for t in tqdm(range(team_members_amount)):
-			alumno = generateAlumno(team_school)
+			alumno = generateAlumno(team_school, gender)
 			insertAlumno(conn, alumno)
 			insertCompetidor(conn, alumno, r+1)
 
