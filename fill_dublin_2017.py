@@ -118,6 +118,7 @@ queries = {
 								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
 								) OR ( 	
 									competenciaSalto.Edad = 'Veteranos'
+									AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
 								)
 							);""",
 	'CompetenciaRotura': """SELECT DISTINCT competenciaIndividual.IdCompetencia 
@@ -147,6 +148,7 @@ queries = {
 								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
 								) OR ( 	
 									competenciaformas.Edad = 'Veteranos'
+									AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
 								)
 							);""",
 	'CompetenciaCombateIndividual': """	SELECT DISTINCT competenciaIndividual.IdCompetencia 
@@ -170,6 +172,7 @@ queries = {
 								 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
 								) OR ( 	
 									competenciaCombateIndividual.Edad = 'Veteranos'
+									AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
 								)
 							);""",
 	'competidores': """SELECT DISTINCT c.DNI FROM Competidor c;""",
@@ -264,7 +267,7 @@ def generateAlumno(IdEscuela=None, Sexo=None):
 	
 	nombres_filtrados = nombres.copy()
 	if Sexo != None:
-		nombres_filtrados = nombres_filtrados[nombres_filtrados['Sexo'] == 'F'].reset_index()
+		nombres_filtrados = nombres_filtrados[nombres_filtrados['Sexo'] == Sexo].reset_index()
 
 	name_index = randint(len(nombres_filtrados))
 	dni_index = randint(len(dni))
