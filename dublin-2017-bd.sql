@@ -362,17 +362,17 @@ $emp_stamp$ LANGUAGE plpgsql;
 
 CREATE TRIGGER DistintosEquiposPrimerSegunTercerPuesto BEFORE INSERT ON CompetenciaCombateEquipos FOR EACH ROW EXECUTE PROCEDURE checkDistintosEquiposPrimerSegunTercerPuesto();
 
--- Restricción 17: Todo competidor que está en alguna de las relaciones “Primer lugar en”, “Segundo lugar en” o “Tercer lugar en” debe estar inscripto a dicha competencia a la cual pertenece la relación.
+-- Restricción 17: Todo competidor que está en alguna de las relaciones “Primer lugar en”, “Segundo lugar en” o “Tercer lugar en” debe estar inscripto y habilitado en dicha competencia a la cual pertenece la relación.
 
 CREATE FUNCTION checkPodioInscriptosCompetencia() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF NEW.PrimerLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.PrimerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
+	IF NEW.PrimerLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.PrimerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) = 0 THEN
 		RAISE EXCEPTION 'Error: primer lugar no esta inscripto en la competencia.';
 	ELSE
-		IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.SegundoLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
+		IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.SegundoLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) = 0 THEN
 			RAISE EXCEPTION 'Error: segundo lugar no esta inscripto en la competencia.';
 		ELSE
-			IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.TercerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) > 0 THEN
+			IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.TercerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) = 0 THEN
 				RAISE EXCEPTION 'Error: tercer lugar no esta inscripto en la competencia.';
 			ELSE
 				RETURN NEW;
@@ -388,14 +388,14 @@ CREATE TRIGGER PodioInscriptosCompetencia BEFORE INSERT OR UPDATE ON Competencia
 
 CREATE FUNCTION checkPodioInscriptosEquipoCompetencia() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF NEW.PrimerLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo) > 0 THEN
-		RAISE EXCEPTION 'Error: primer lugar no esta inscripto en la competencia.';
+	IF NEW.PrimerLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei, Competencia co WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo AND NEW.IdCompetencia = co.IdCompetencia AND NOT EXISTS (SELECT * FROM Competidor c WHERE c.IdEquipo = e.IdEquipo AND co.Sexo <> c.Sexo)) = 0 THEN
+		RAISE EXCEPTION 'Error: primer lugar no esta inscripto y habilitado en la competencia.';
 	ELSE
-		IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei WHERE NEW.SegundoLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo) > 0 THEN
-			RAISE EXCEPTION 'Error: segundo lugar no esta inscripto en la competencia.';
+		IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei, Competencia co WHERE NEW.SegundoLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo AND NEW.IdCompetencia = co.IdCompetencia AND NOT EXISTS (SELECT * FROM Competidor c WHERE c.IdEquipo = e.IdEquipo AND co.Sexo <> c.Sexo)) = 0 THEN
+			RAISE EXCEPTION 'Error: segundo lugar no esta inscripto y habilitado en la competencia.';
 		ELSE
-			IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei WHERE NEW.TercerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo) > 0 THEN
-				RAISE EXCEPTION 'Error: tercer lugar no esta inscripto en la competencia.';
+			IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei, Competencia co WHERE NEW.TercerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo AND NEW.IdCompetencia = co.IdCompetencia AND NOT EXISTS (SELECT * FROM Competidor c WHERE c.IdEquipo = e.IdEquipo AND co.Sexo <> c.Sexo)) = 0 THEN
+				RAISE EXCEPTION 'Error: tercer lugar no esta inscripto y habilitado en la competencia.';
 			ELSE
 				RETURN NEW;
 			END IF;
