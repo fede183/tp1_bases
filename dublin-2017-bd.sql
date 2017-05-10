@@ -101,7 +101,7 @@ CREATE TABLE Competidor (
 );
 CREATE TABLE CompetenciaSalto (
 	IdCompetencia	INTEGER NOT NULL,
-	Edad	INTEGER NOT NULL CHECK (Edad >= 1 AND Edad <= 150),
+	Edad	TEXT NOT NULL CHECK (Edad = 'Juveniles' OR Edad = 'Adultos' OR Edad = 'Veteranos'),
 	PRIMARY KEY(IdCompetencia),
 	FOREIGN KEY(IdCompetencia) REFERENCES Competencia(IdCompetencia)
 );
@@ -125,13 +125,13 @@ CREATE TABLE CompetenciaIndividual (
 );
 CREATE TABLE CompetenciaFormas (
 	IdCompetencia	INTEGER NOT NULL,
-	Edad	INTEGER NOT NULL CHECK (Edad >= 1 AND Edad <= 150),
+	Edad	TEXT NOT NULL CHECK (Edad = 'Juveniles' OR Edad = 'Adultos' OR Edad = 'Veteranos'),
 	PRIMARY KEY(IdCompetencia),
 	FOREIGN KEY(IdCompetencia) REFERENCES Competencia(IdCompetencia)
 );
 CREATE TABLE CompetenciaCombateIndividual (
 	IdCompetencia	INTEGER NOT NULL,
-	Edad	INTEGER NOT NULL CHECK (Edad >= 1 AND Edad <= 150),
+	Edad	TEXT NOT NULL CHECK (Edad = 'Juveniles' OR Edad = 'Adultos' OR Edad = 'Veteranos'),
 	Peso	INTEGER NOT NULL CHECK (Peso >= 1 AND Peso <= 300),
 	PRIMARY KEY(IdCompetencia),
 	FOREIGN KEY(IdCompetencia) REFERENCES Competencia(IdCompetencia)
@@ -141,7 +141,6 @@ CREATE TABLE CompetenciaCombateEquipos (
 	PrimerLugar	INTEGER,
 	SegundoLugar	INTEGER,
 	TercerLugar	INTEGER,
-	Edad	INTEGER NOT NULL CHECK (Edad >= 1 AND Edad <= 150),
 	PRIMARY KEY(IdCompetencia),
 	FOREIGN KEY(IdCompetencia) REFERENCES Competencia(IdCompetencia),
 	FOREIGN KEY(PrimerLugar) REFERENCES Equipo(IdEquipo),
