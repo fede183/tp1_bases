@@ -3,3 +3,13 @@ base de datos permite la inscripción de competidores, en las diferentes modalid
 Para realizar esta labor construimos un Modelo de Entidad Relación(MER) y lo implementamos utilizando el motor de base
 de datos PostgreSQL. A lo largo del presente informe detallaremos las distintas partes del MER (diagrama entidad relación, restricciones,
 modelo relacional) y mostraremos la documentación del diseño físico de la base de datos junto con el código de la misma.
+
+\subsection{Asunciones}
+\begin{enumerate}
+	\item Consideramos que los coeaches son alumnos.
+	\item Asumimos que un competidor se puede inscribir aunque no cumpla los requerimientos de la categoría, en este caso, el competidor no estará habilitado y no podrá competir o ganar ningún puesto en el podio.
+	\item Asumimos que cada ring tiene un solo grupo de árbitros.
+	\item Solo consideramos los tres primeros ganadores de cada competencia y no hacemos ninguna referencia a las estructuras de las llaves.
+	\item Asumimos que hay tres categorías de edades ``Juveniles'', ``adultos'' y ``Veteranos'' con sus correspondientes rangos (14 a 17, 18 a 35, 36 en adelante).
+	\item Asumimos que el valor asociado al peso de una categoría es el peso máximo que puede tener un competidor para estar habilitado en dicha categoría.
+\end{enumerate}

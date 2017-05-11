@@ -100,6 +100,7 @@ CompetenciaIndividual ci where com.DNI = a.DNI and ci.SegundoLugar = com.DNI)) +
 comEq.IdEquipo = eq.IdEquipo and al.DNI = comEQ.DNI and  es.IdEscuela = al.IdEscuela) and 
 Exists(select count(1) from CompetenciaCombateEquipos cce where cce.SegundoLugar = eq.IdEquipo))) from Pais paisAux);
 
+
 /*Pais con mas medallas de bronce */
 
 Select * from Pais p where (

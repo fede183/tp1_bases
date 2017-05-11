@@ -520,7 +520,10 @@ def loadPositions(conn):
 			ganadores.append(inscriptos['dnialumno'][nro])
 			inscriptos.drop(nro)
 		for i in tqdm(range(len(ganadores))):
-			doUpdate(conn, updates['CompetenciaIndividual'][i], [ganadores[i],competencia])
+			try:
+				doUpdate(conn, updates['CompetenciaIndividual'][i], [ganadores[i],competencia])
+			except:
+				print ganadores, competencia
 
 	print "Cargando 1ra 2da y 3ra posion de cada competencia combate en equipo"
 	competencias = doQuery(conn, queries['CompetenciaCombateEquipos'])

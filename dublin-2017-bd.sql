@@ -1,6 +1,4 @@
 BEGIN TRANSACTION;
-DROP SCHEMA "public" CASCADE;
-CREATE SCHEMA "public";
 CREATE TABLE Ring (
 	IdRing	INTEGER PRIMARY KEY
 );
@@ -34,7 +32,7 @@ CREATE TABLE Alumno (
 	Nombre	TEXT NOT NULL,
 	Apellido	TEXT NOT NULL,
 	Graduacion	INTEGER NOT NULL CHECK (Graduacion >= 1 AND Graduacion <= 6),
-	NroCertificadoGraduacionITF	INTEGER NOT NULL,
+	NroCertificadoGraduacionITF	INTEGER NOT NULL UNIQUE,
 	Foto	TEXT NOT NULL,
 	FOREIGN KEY(IdEscuela) REFERENCES Escuela(IdEscuela)
 );
@@ -188,7 +186,7 @@ CREATE TRIGGER CoachMaximo5Competidores BEFORE INSERT ON InscriptoEn FOR EACH RO
 
 CREATE FUNCTION checkCompetidoresEquipoMismaEscuela() RETURNS trigger AS $emp_stamp$
     BEGIN
-        IF NEW.IdEquipo <> NULL THEN
+        IF NEW.IdEquipo IS NOT NULL THEN
 		IF (SELECT COUNT(1) FROM Competidor c, Alumno a1, Alumno a2 WHERE NEW.IdEquipo = c.IdEquipo AND NEW.DNI = a1.DNI AND c.DNI = a2.DNI AND a1.IdEscuela <> a2.IdEscuela) > 0 THEN
 			RAISE EXCEPTION 'Error: los competidores de un equipo deben pertenecer todos a la misma escuela.';
 		ELSE
@@ -234,7 +232,7 @@ CREATE TRIGGER EquipoInscriptoTiene3Suplentes BEFORE INSERT ON EquipoInscriptoEn
 
 CREATE FUNCTION checkCompetidorSinEquipoNoEsTitularNiSup() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF (NEW.IdEquipo = NULL AND NEW.Titular <> NULL) OR (NEW.IdEquipo <> NULL AND NEW.Titular = NULL) THEN
+	IF (NEW.IdEquipo = NULL AND NEW.Titular IS NOT NULL) OR (NEW.IdEquipo IS NOT NULL AND NEW.Titular = NULL) THEN
 		RAISE EXCEPTION 'Error: competidor pertenece a un equipo si y solo si el atributo Titular es distinto de NULL';
 	ELSE
 		RETURN NEW;
@@ -364,37 +362,287 @@ CREATE TRIGGER DistintosEquiposPrimerSegunTercerPuesto BEFORE INSERT ON Competen
 
 -- Restricción 17: Todo competidor que está en alguna de las relaciones “Primer lugar en”, “Segundo lugar en” o “Tercer lugar en” debe estar inscripto y habilitado en dicha competencia a la cual pertenece la relación.
 
-CREATE FUNCTION checkPodioInscriptosCompetencia() RETURNS trigger AS $emp_stamp$
+CREATE FUNCTION checkPrimerLugarInscriptosCompetencia() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF NEW.PrimerLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.PrimerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) = 0 THEN
-		RAISE EXCEPTION 'Error: primer lugar no esta inscripto en la competencia.';
+	IF 	NEW.PrimerLugar IS NOT NULL 
+		AND (
+			SELECT COUNT(1) 
+			FROM Alumno a, Competencia co, Competidor c, InscriptoEn ie
+			WHERE NEW.PrimerLugar = c.DNI 
+			AND a.DNI = c.DNI
+			AND co.IdCompetencia = NEW.IdCompetencia
+			AND ie.IdCompetencia = NEW.IdCompetencia  
+			AND c.Sexo = co.Sexo
+			AND c.DNI = ie.DNIAlumno 
+			AND a.Graduacion = NEW.Graduacion 
+			AND ( 
+				( 
+					NEW.Modalidad = 0 
+					AND EXISTS (
+						SELECT * 
+						FROM CompetenciaSalto cs 
+						WHERE cs.IdCompetencia = NEW.IdCompetencia 
+						AND (
+							( 	
+								cs.Edad = 'Juveniles'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+							) OR ( 	
+								cs.Edad = 'Adultos'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+							) OR ( 	
+								cs.Edad = 'Veteranos'
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
+							)
+						)
+					)
+				) OR ( 
+					NEW.Modalidad = 1 
+					AND EXISTS (
+						SELECT * 
+						FROM CompetenciaFormas cf 
+						WHERE cf.IdCompetencia = NEW.IdCompetencia 
+						AND (
+							( 	
+								cf.Edad = 'Juveniles'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+							) OR ( 	
+								cf.Edad = 'Adultos'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+							) OR ( 	
+								cf.Edad = 'Veteranos'
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
+							)
+						)
+					)
+				) OR ( 
+					NEW.Modalidad = 2 
+					AND EXISTS (
+						SELECT * 
+						FROM CompetenciaCombateIndividual cci 
+						WHERE cci.IdCompetencia = NEW.IdCompetencia 
+						AND cci.Peso >= c.Peso 
+						AND (
+							( 	
+								cci.Edad = 'Juveniles'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+							) OR ( 	
+								cci.Edad = 'Adultos'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+							) OR ( 	
+								cci.Edad = 'Veteranos'
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
+							)
+						)
+					)
+				) OR NEW.Modalidad = 3
+			)
+		) = 0 THEN
+		RAISE EXCEPTION 'Error: primer lugar no esta inscripto y habilitado en la competencia.';
 	ELSE
-		IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.SegundoLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) = 0 THEN
-			RAISE EXCEPTION 'Error: segundo lugar no esta inscripto en la competencia.';
-		ELSE
-			IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Competidor c, InscriptoEn ie WHERE NEW.TercerLugar = c.DNI AND NEW.IdCompetencia = ie.IdCompetencia AND c.DNI = ie.DNIAlumno) = 0 THEN
-				RAISE EXCEPTION 'Error: tercer lugar no esta inscripto en la competencia.';
-			ELSE
-				RETURN NEW;
-			END IF;
-		END IF;
+		RETURN NEW;
 	END IF;
     END;
 $emp_stamp$ LANGUAGE plpgsql;
 
-CREATE TRIGGER PodioInscriptosCompetencia BEFORE INSERT OR UPDATE ON CompetenciaIndividual FOR EACH ROW EXECUTE PROCEDURE checkPodioInscriptosCompetencia();
+CREATE FUNCTION checkSegundoLugarInscriptosCompetencia() RETURNS trigger AS $emp_stamp$
+    BEGIN
+	IF 	NEW.SegundoLugar IS NOT NULL 
+		AND (
+			SELECT COUNT(1) 
+			FROM Alumno a, Competencia co, Competidor c, InscriptoEn ie
+			WHERE NEW.SegundoLugar = c.DNI 
+			AND a.DNI = c.DNI
+			AND co.IdCompetencia = NEW.IdCompetencia
+			AND ie.IdCompetencia = NEW.IdCompetencia  
+			AND c.Sexo = co.Sexo
+			AND c.DNI = ie.DNIAlumno 
+			AND a.Graduacion = NEW.Graduacion 
+			AND ( 
+				( 
+					NEW.Modalidad = 0 
+					AND EXISTS (
+						SELECT * 
+						FROM CompetenciaSalto cs 
+						WHERE cs.IdCompetencia = NEW.IdCompetencia 
+						AND (
+							( 	
+								cs.Edad = 'Juveniles'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+							) OR ( 	
+								cs.Edad = 'Adultos'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+							) OR ( 	
+								cs.Edad = 'Veteranos'
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
+							)
+						)
+					)
+				) OR ( 
+					NEW.Modalidad = 1 
+					AND EXISTS (
+						SELECT * 
+						FROM CompetenciaFormas cf 
+						WHERE cf.IdCompetencia = NEW.IdCompetencia 
+						AND (
+							( 	
+								cf.Edad = 'Juveniles'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+							) OR ( 	
+								cf.Edad = 'Adultos'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+							) OR ( 	
+								cf.Edad = 'Veteranos'
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
+							)
+						)
+					)
+				) OR ( 
+					NEW.Modalidad = 2 
+					AND EXISTS (
+						SELECT * 
+						FROM CompetenciaCombateIndividual cci 
+						WHERE cci.IdCompetencia = NEW.IdCompetencia 
+						AND cci.Peso >= c.Peso 
+						AND (
+							( 	
+								cci.Edad = 'Juveniles'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+							) OR ( 	
+								cci.Edad = 'Adultos'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+							) OR ( 	
+								cci.Edad = 'Veteranos'
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
+							)
+						)
+					)
+				) OR NEW.Modalidad = 3
+			)
+		) = 0 THEN
+		RAISE EXCEPTION 'Error: primer lugar no esta inscripto y habilitado en la competencia.';
+	ELSE
+		RETURN NEW;
+	END IF;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+CREATE FUNCTION checkTercerLugarInscriptosCompetencia() RETURNS trigger AS $emp_stamp$
+    BEGIN
+	IF 	NEW.TercerLugar IS NOT NULL 
+		AND (
+			SELECT COUNT(1) 
+			FROM Alumno a, Competencia co, Competidor c, InscriptoEn ie
+			WHERE NEW.TercerLugar = c.DNI 
+			AND a.DNI = c.DNI
+			AND co.IdCompetencia = NEW.IdCompetencia
+			AND ie.IdCompetencia = NEW.IdCompetencia  
+			AND c.Sexo = co.Sexo
+			AND c.DNI = ie.DNIAlumno 
+			AND a.Graduacion = NEW.Graduacion 
+			AND ( 
+				( 
+					NEW.Modalidad = 0 
+					AND EXISTS (
+						SELECT * 
+						FROM CompetenciaSalto cs 
+						WHERE cs.IdCompetencia = NEW.IdCompetencia 
+						AND (
+							( 	
+								cs.Edad = 'Juveniles'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+							) OR ( 	
+								cs.Edad = 'Adultos'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+							) OR ( 	
+								cs.Edad = 'Veteranos'
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
+							)
+						)
+					)
+				) OR ( 
+					NEW.Modalidad = 1 
+					AND EXISTS (
+						SELECT * 
+						FROM CompetenciaFormas cf 
+						WHERE cf.IdCompetencia = NEW.IdCompetencia 
+						AND (
+							( 	
+								cf.Edad = 'Juveniles'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+							) OR ( 	
+								cf.Edad = 'Adultos'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+							) OR ( 	
+								cf.Edad = 'Veteranos'
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
+							)
+						)
+					)
+				) OR ( 
+					NEW.Modalidad = 2 
+					AND EXISTS (
+						SELECT * 
+						FROM CompetenciaCombateIndividual cci 
+						WHERE cci.IdCompetencia = NEW.IdCompetencia 
+						AND cci.Peso >= c.Peso 
+						AND (
+							( 	
+								cci.Edad = 'Juveniles'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 14
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 18
+							) OR ( 	
+								cci.Edad = 'Adultos'
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 18
+							 	AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) < 36
+							) OR ( 	
+								cci.Edad = 'Veteranos'
+								AND EXTRACT(YEAR from AGE(c.fechadenacimiento)) >= 36
+							)
+						)
+					)
+				) OR NEW.Modalidad = 3
+			)
+		) = 0 THEN
+		RAISE EXCEPTION 'Error: primer lugar no esta inscripto y habilitado en la competencia.';
+	ELSE
+		RETURN NEW;
+	END IF;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+CREATE TRIGGER PrimerLugarInscriptosCompetencia BEFORE INSERT OR UPDATE ON CompetenciaIndividual FOR EACH ROW EXECUTE PROCEDURE checkPrimerLugarInscriptosCompetencia();
+
+CREATE TRIGGER SegundoLugarInscriptosCompetencia BEFORE INSERT OR UPDATE ON CompetenciaIndividual FOR EACH ROW EXECUTE PROCEDURE checkSegundoLugarInscriptosCompetencia();
+
+CREATE TRIGGER TercerLugarInscriptosCompetencia BEFORE INSERT OR UPDATE ON CompetenciaIndividual FOR EACH ROW EXECUTE PROCEDURE checkTercerLugarInscriptosCompetencia();
 
 -- Restricción 18: Todo Equipo que está en alguna de las relaciones “Primer lugar en”, “Segundo lugar en” o “Tercer lugar en” debe estar inscripto y habilitado en dicha competencia a la cual pertenece la relación.
 
 CREATE FUNCTION checkPodioInscriptosEquipoCompetencia() RETURNS trigger AS $emp_stamp$
     BEGIN
-	IF NEW.PrimerLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei, Competencia co WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo AND NEW.IdCompetencia = co.IdCompetencia AND NOT EXISTS (SELECT * FROM Competidor c WHERE c.IdEquipo = e.IdEquipo AND co.Sexo <> c.Sexo)) = 0 THEN
+	IF NEW.PrimerLugar IS NOT NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei, Competencia co WHERE NEW.PrimerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo AND NEW.IdCompetencia = co.IdCompetencia AND NOT EXISTS (SELECT * FROM Competidor c WHERE c.IdEquipo = e.IdEquipo AND co.Sexo <> c.Sexo)) = 0 THEN
 		RAISE EXCEPTION 'Error: primer lugar no esta inscripto y habilitado en la competencia.';
 	ELSE
-		IF NEW.SegundoLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei, Competencia co WHERE NEW.SegundoLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo AND NEW.IdCompetencia = co.IdCompetencia AND NOT EXISTS (SELECT * FROM Competidor c WHERE c.IdEquipo = e.IdEquipo AND co.Sexo <> c.Sexo)) = 0 THEN
+		IF NEW.SegundoLugar IS NOT NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei, Competencia co WHERE NEW.SegundoLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo AND NEW.IdCompetencia = co.IdCompetencia AND NOT EXISTS (SELECT * FROM Competidor c WHERE c.IdEquipo = e.IdEquipo AND co.Sexo <> c.Sexo)) = 0 THEN
 			RAISE EXCEPTION 'Error: segundo lugar no esta inscripto y habilitado en la competencia.';
 		ELSE
-			IF NEW.TercerLugar <> NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei, Competencia co WHERE NEW.TercerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo AND NEW.IdCompetencia = co.IdCompetencia AND NOT EXISTS (SELECT * FROM Competidor c WHERE c.IdEquipo = e.IdEquipo AND co.Sexo <> c.Sexo)) = 0 THEN
+			IF NEW.TercerLugar IS NOT NULL AND (SELECT COUNT(1) FROM Equipo e, EquipoInscriptoEn ei, Competencia co WHERE NEW.TercerLugar = e.IdEquipo AND NEW.IdCompetencia = ei.IdCompetencia AND e.IdEquipo = ei.IdEquipo AND NEW.IdCompetencia = co.IdCompetencia AND NOT EXISTS (SELECT * FROM Competidor c WHERE c.IdEquipo = e.IdEquipo AND co.Sexo <> c.Sexo)) = 0 THEN
 				RAISE EXCEPTION 'Error: tercer lugar no esta inscripto y habilitado en la competencia.';
 			ELSE
 				RETURN NEW;
@@ -419,5 +667,22 @@ CREATE FUNCTION checkUnaSolaCategoriaPorCompetidor() RETURNS trigger AS $emp_sta
 $emp_stamp$ LANGUAGE plpgsql;
 
 CREATE TRIGGER UnaSolaCategoriaPorCompetidor BEFORE INSERT ON InscriptoEn FOR EACH ROW EXECUTE PROCEDURE checkUnaSolaCategoriaPorCompetidor();
+
+COMMIT;
+
+-- Restricción 20: Todos los competidores que pertenecen a un mismo equipo son del mismo sexo.
+
+
+CREATE FUNCTION checkCompetidorMismoSexoQueElEquipo() RETURNS trigger AS $emp_stamp$
+    BEGIN
+	IF NEW.IdEquipo IS NOT NULL AND EXISTS (SELECT * FROM Equipo e, competidor c WHERE e.IdEquipo = NEW.IdEquipo AND c.IdEquipo = NEW.IdEquipo AND c.Sexo <> NEW.Sexo) THEN
+		RAISE EXCEPTION 'Error: competidor tiene sexo distinto al del resto del equipo.';
+	ELSE
+		RETURN NEW;
+	END IF;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+CREATE TRIGGER competidorMismoSexoQueElEquipo BEFORE INSERT OR UPDATE ON Competidor FOR EACH ROW EXECUTE PROCEDURE checkCompetidorMismoSexoQueElEquipo();
 
 COMMIT;

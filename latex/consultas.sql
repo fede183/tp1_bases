@@ -1,3 +1,74 @@
+# Consulta 1 
+# El listado de inscriptos en cada categoría para el armado de llaves
+SELECT 	
+	comp.IdCompetencia as 'IdCompetencia', comp.Sexo as 'CategoriaSexo', ci.Graduacion as 'CategoriaGraduacion',
+	c.Sexo as 'SexoCompetidor', a1.Graduacion as 'GraduacionCompetidor', a1.DNI as 'DNICompetidor', a1.Nombre as 'NombreCompetidor', a1.Apellido as 'ApellidoCompetidor',
+	a2.DNI as 'DNICoach', a2.Nombre as 'NombreCoach', a2.Apellido as 'ApellidoCoach'
+FROM inscriptoen ie, alumno a1, alumno a2, competidor c, competencia comp, competenciaindividual ci, competenciarotura cr
+WHERE a1.DNI = ie.DNIAlumno
+AND a2.DNI = ie.DNICoach
+AND c.DNI = a1.DNI
+AND comp.IdCompetencia = ie.IdCompetencia
+AND comp.IdCompetencia = ci.IdCompetencia
+AND comp.IdCompetencia = cr.IdCompetencia
+ORDER BY comp.Sexo, ci.Graduacion, comp.IdCompetencia ASC;
+
+# Listado de inscriptos en la modalidad competencia salto
+
+SELECT 	comp.IdCompetencia as 'IdCompetencia', comp.Sexo as 'CategoriaSexo', ci.Graduacion as 'CategoriaGraduacion', cs.edad as 'Categoria edad',
+	c.Sexo as 'SexoCompetidor', a1.Graduacion as 'GraduacionCompetidor', EXTRACT(YEAR FROM AGE(c.fechadenacimiento)) as 'EdadCompetidor', a1.DNI as 'DNICompetidor', a1.Nombre as 'NombreCompetidor', a1.Apellido as 'ApellidoCompetidor',
+	a2.DNI as 'DNICoach', a2.Nombre as 'NombreCoach', a2.Apellido as 'ApellidoCoach'
+FROM inscriptoen ie, alumno a1, alumno a2, competidor c, competencia comp, competenciaindividual ci, competenciasalto cs
+WHERE a1.DNI = ie.DNIAlumno
+AND a2.DNI = ie.DNICoach
+AND c.DNI = a1.DNI
+AND comp.IdCompetencia = ie.IdCompetencia
+AND comp.IdCompetencia = ci.IdCompetencia
+AND comp.IdCompetencia = cs.IdCompetencia
+ORDER BY comp.Sexo, ci.Graduacion, comp.IdCompetencia ASC;
+
+
+# Listado de inscriptos en la modalidad competencia formas
+
+SELECT 	comp.IdCompetencia as 'IdCompetencia', comp.Sexo as 'CategoriaSexo', ci.Graduacion as 'CategoriaGraduacion', cf.edad as 'Categoria edad',
+	c.Sexo as 'SexoCompetidor', a1.Graduacion as 'GraduacionCompetidor', EXTRACT(YEAR FROM AGE(c.fechadenacimiento)) as 'EdadCompetidor', a1.DNI as 'DNICompetidor', a1.Nombre as 'NombreCompetidor', a1.Apellido as 'ApellidoCompetidor',
+	a2.DNI as 'DNICoach', a2.Nombre as 'NombreCoach', a2.Apellido as 'ApellidoCoach'
+FROM inscriptoen ie, alumno a1, alumno a2, competidor c, competencia comp, competenciaindividual ci, competenciaformas cf
+WHERE a1.DNI = ie.DNIAlumno
+AND a2.DNI = ie.DNICoach
+AND c.DNI = a1.DNI
+AND comp.IdCompetencia = ie.IdCompetencia
+AND comp.IdCompetencia = ci.IdCompetencia
+AND comp.IdCompetencia = cf.IdCompetencia
+ORDER BY comp.Sexo, ci.Graduacion, comp.IdCompetencia ASC;
+
+# Listado de inscriptos en la modalidad competencia combate individual
+
+SELECT 	comp.IdCompetencia as 'IdCompetencia', comp.Sexo as 'CategoriaSexo', ci.Graduacion as 'CategoriaGraduacion', cci.edad as 'Categoria edad', cci.peso as 'Categoria peso',
+	c.Sexo as 'SexoCompetidor', a1.Graduacion as 'GraduacionCompetidor', EXTRACT(YEAR FROM AGE(c.fechadenacimiento)) as 'EdadCompetidor', c.peso as 'Peso competidor', a1.DNI as 'DNICompetidor', a1.Nombre as 'NombreCompetidor', a1.Apellido as 'ApellidoCompetidor',
+	a2.DNI as 'DNICoach', a2.Nombre as 'NombreCoach', a2.Apellido as 'ApellidoCoach'
+FROM inscriptoen ie, alumno a1, alumno a2, competidor c, competencia comp, competenciaindividual ci, competenciacombateindividual cci
+WHERE a1.DNI = ie.DNIAlumno
+AND a2.DNI = ie.DNICoach
+AND c.DNI = a1.DNI
+AND comp.IdCompetencia = ie.IdCompetencia
+AND comp.IdCompetencia = ci.IdCompetencia
+AND comp.IdCompetencia = cci.IdCompetencia
+ORDER BY comp.Sexo, ci.Graduacion, comp.IdCompetencia ASC;
+
+# Listado de inscriptos en la modalidad competencia combate equipo
+
+SELECT DISTINCT comp.IdCompetencia as 'IdCompetencia', comp.Sexo as 'CategoriaSexo',
+	c.Sexo as 'SexoEquipo', e.NombreDeFantasia as 'NombreDeFantasia',
+	a2.DNI as 'DNICoach', a2.Nombre as 'NombreCoach', a2.Apellido as 'ApellidoCoach'
+FROM equipoinscriptoen ie, equipo e, alumno a2, competidor c, competencia comp, CompetenciaCombateEquipos cce
+WHERE a2.DNI = ie.DNICoach
+AND e.IdEquipo = ie.IdEquipo
+AND c.IdEquipo = e.IdEquipo
+AND comp.IdCompetencia = ie.IdCompetencia
+AND comp.IdCompetencia = cce.IdCompetencia
+ORDER BY comp.Sexo, comp.IdCompetencia ASC;
+
 # 2. Paises con más medallas
 #Pais con mas medallas de oro
 
